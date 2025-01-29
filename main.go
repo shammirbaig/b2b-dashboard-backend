@@ -18,7 +18,7 @@ func main() {
 	authCtx := server.NewGroupPath("/auth")
 
 	authCtx.POST("/org", createOrg)
-
+	lr.Test()
 	if err := server.ListenAndServe(); err != nil {
 		panic(err)
 	}

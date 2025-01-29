@@ -9,7 +9,7 @@ const (
 	loginUrl = lrURL + "/identity/v2/auth/login?" + apikey
 )
 
-func getRolesOfUserInOrgUrl(uid string) string {
+func getOrgsOfUserUrl(uid string) string {
 
 	url := lrURL + "/identity/v2/manage/account/{uid}/orgcontext"
 

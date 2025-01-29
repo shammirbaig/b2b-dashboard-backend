@@ -16,7 +16,7 @@ func client(method, url string, payload io.Reader) ([]byte, error) {
 	req.Header.Add("X-CustomerId", "7c9254057e2044c5b3fadf8bf0b3dd31")
 	req.Header.Add("X-AppId", "99207378")
 	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Authorization", "Bearer "+generateM2MToken())
+	req.Header.Add("Authorization", "Bearer "+GetM2MToken())
 
 	res, err := client.Do(req)
 	if err != nil {

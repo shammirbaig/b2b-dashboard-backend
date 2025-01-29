@@ -2,7 +2,10 @@ module backend
 
 go 1.23.4
 
-require github.com/savsgio/atreugo/v11 v11.13.2
+require (
+	github.com/savsgio/atreugo/v11 v11.13.2
+	go.mongodb.org/mongo-driver v1.17.2
+)
 
 require (
 	github.com/andybalholm/brotli v1.1.0 // indirect

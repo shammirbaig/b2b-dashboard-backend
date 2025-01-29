@@ -1,49 +1,58 @@
 package lr
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
 	"strings"
 )
 
-func generateM2MToken() string {
-	// Generate a new M2M token
-	return "m2mToken"
-}
-
 // Login returns the orgs that the user is a part of
-func Login(email, password string) ([]string, error) {
+func Login(email, password string) ([]Organizations, error) {
 
 	data, err := Post(loginUrl, strings.NewReader(`{"email":"`+email+`","password":"`+password+`"}`))
 	if err != nil {
 		return nil, err
 	}
 
-	// get the UID
-	uid := string(data)
-
-	// using the above UID, get the orgs that the user is a part of
-	GetUserRoles(uid)
-
-	return nil, nil
-}
-
-func GetUserRoles(userID string) ([]string, error) {
-	data, err := Get(getRolesOfUserInOrgUrl(userID))
-	if err != nil {
-		return "", err
+	var tokenResp struct {
+		Uid string `json:"Uid"`
 	}
 
-	return string(data), nil
-}
-
-func CreateAnOrg(orgName string) (string, error) {
-	data, err := Post(lrURL+"/v2/manage/organizations", strings.NewReader(`{"name":"`+orgName+`"}`))
-	if err != nil {
-		return "", err
+	if err := json.NewDecoder(bytes.NewReader(data)).Decode(&tokenResp); err != nil {
+		return nil, err
 	}
 
-	return string(data), nil
+	orgs, err := GetUserOrgs(tokenResp.Uid)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println(orgs)
+	return orgs, nil
+}
+
+func GetUserOrgs(uid string) ([]Organizations, error) {
+	data, err := Get(getOrgsOfUserUrl(uid))
+	if err != nil {
+		return nil, err
+	}
+
+	var orgsResp struct {
+		Data struct {
+			Orgs []Organizations `json:"Orgs"`
+		} `json:"data"`
+	}
+
+	if err := json.NewDecoder(bytes.NewReader(data)).Decode(&orgsResp); err != nil {
+		return nil, err
+	}
+
+	return orgsResp.Data.Orgs, nil
 }
 
 func Test() {
-	Get(lrURL + "/v2/manage/permissions")
+	orgs, _ := GetUserOrgs("7c9254057e2044c5b3fadf8bf0b3dd31")
+
+	fmt.Println("Response:", orgs)
 }
