@@ -1,7 +1,6 @@
 package lr
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -10,14 +9,37 @@ func generateM2MToken() string {
 	return "m2mToken"
 }
 
-func Login(email, password string) (string, error) {
+// Login returns the orgs that the user is a part of
+func Login(email, password string) ([]string, error) {
 
 	data, err := Post(loginUrl, strings.NewReader(`{"email":"`+email+`","password":"`+password+`"}`))
+	if err != nil {
+		return nil, err
+	}
+
+	// get the UID
+	uid := string(data)
+
+	// using the above UID, get the orgs that the user is a part of
+	GetUserRoles(uid)
+
+	return nil, nil
+}
+
+func GetUserRoles(userID string) ([]string, error) {
+	data, err := Get(getRolesOfUserInOrgUrl(userID))
 	if err != nil {
 		return "", err
 	}
 
-	fmt.Println(string(data))
+	return string(data), nil
+}
+
+func CreateAnOrg(orgName string) (string, error) {
+	data, err := Post(lrURL+"/v2/manage/organizations", strings.NewReader(`{"name":"`+orgName+`"}`))
+	if err != nil {
+		return "", err
+	}
 
 	return string(data), nil
 }
