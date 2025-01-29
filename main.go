@@ -17,7 +17,11 @@ func main() {
 
 	authCtx := server.NewGroupPath("/auth")
 
+	lr.Test()
+
 	authCtx.POST("/login", login)
+	authCtx.POST("/org/{id}/create", createOrg)
+
 	if err := server.ListenAndServe(); err != nil {
 		panic(err)
 	}
@@ -42,4 +46,24 @@ func login(ctx *atreugo.RequestCtx) error {
 	}
 
 	return ctx.JSONResponse(data, 201)
+}
+
+func createOrg(ctx *atreugo.RequestCtx) error {
+
+	// Get the request body
+	var org = struct {
+		Name string `json:"name"`
+	}{}
+	if err := json.Unmarshal(ctx.PostBody(), &org); err != nil {
+		return ctx.ErrorResponse(err, 400)
+	}
+
+	tenantOrgID := ctx.UserValue("id").(string)
+
+	// Handle the request
+	if err := lr.CreateOrg(tenantOrgID, org.Name); err != nil {
+		return ctx.ErrorResponse(err, 500)
+	}
+
+	return ctx.JSONResponse(nil, 201)
 }

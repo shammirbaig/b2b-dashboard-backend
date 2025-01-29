@@ -1,8 +1,9 @@
 package lr
 
 import (
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Organizations struct {
@@ -138,4 +139,31 @@ type IDPCertificate struct {
 
 type TimeStamp struct {
 	*time.Time
+}
+
+type AppResponse struct {
+	AppName               string    `json:"AppName"`
+	CustomerName          string    `json:"CustomerName"`
+	WebTechnology         int       `json:"WebTechnology"`
+	Domain                string    `json:"Domain"`
+	CallbackUrl           string    `json:"CallbackUrl"`
+	DevDomain             string    `json:"DevDomain"`
+	AppId                 int       `json:"AppId"`
+	Key                   string    `json:"Key"`
+	Secret                string    `json:"Secret"`
+	Role                  string    `json:"Role"`
+	IsWelcomeEmailEnabled bool      `json:"IsWelcomeEmailEnabled"`
+	IsHttps               bool      `json:"IsHttps"`
+	InterfaceId           int       `json:"InterfaceId"`
+	RecurlyAccountCode    string    `json:"RecurlyAccountCode"`
+	DateCreated           time.Time `json:"DateCreated"`
+	DateModified          time.Time `json:"DateModified"`
+	Status                bool      `json:"Status"`
+	ProfilePhoto          string    `json:"ProfilePhoto"`
+	ApiVersion            string    `json:"ApiVersion"`
+	PrivacyPolicy         *string   `json:"PrivacyPolicy"`
+	TermsOfService        *string   `json:"TermsOfService"`
+	OwnerId               string    `json:"OwnerId"`
+	ProductPlan           *string   `json:"ProductPlan"`
+	EnvironmentTag        string    `json:"EnvironmentTag"`
 }
