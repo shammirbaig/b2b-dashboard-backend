@@ -17,14 +17,13 @@ func main() {
 
 	authCtx := server.NewGroupPath("/auth")
 
-	authCtx.POST("/org", createOrg)
-	lr.Test()
+	authCtx.POST("/login", login)
 	if err := server.ListenAndServe(); err != nil {
 		panic(err)
 	}
 }
 
-func createOrg(ctx *atreugo.RequestCtx) error {
+func login(ctx *atreugo.RequestCtx) error {
 
 	// Get the request body
 	var permission = struct {
