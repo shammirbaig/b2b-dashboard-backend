@@ -6,11 +6,7 @@ import (
 	"strings"
 )
 
-func Get(url string) ([]byte, error) {
-	method := "GET"
-
-	payload := strings.NewReader(``)
-
+func client(method, url string, payload io.Reader) ([]byte, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest(method, url, payload)
 
@@ -21,7 +17,6 @@ func Get(url string) ([]byte, error) {
 	req.Header.Add("X-AppId", "99207378")
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Authorization", "Bearer "+generateM2MToken())
-	req.Header.Add("Cookie", "__cf_bm=poEledIwwQoD3mx542YKDtJh8qCGJIXZwvkV.uampTc-1737548546-1.0.1.1-uXnnSebq3lSMAeDbqVjCAOoYrLE_E_XCE8CYKKXm6RXxiGZOsonnZGVZZf.ShWd53KhaJqq6BXEaNYTCh7rtqg")
 
 	res, err := client.Do(req)
 	if err != nil {
@@ -35,4 +30,19 @@ func Get(url string) ([]byte, error) {
 	}
 
 	return body, nil
+}
+
+func Get(url string) ([]byte, error) {
+	method := "GET"
+
+	payload := strings.NewReader(``)
+
+	return client(method, url, payload)
+}
+
+func Post(url string, payload io.Reader) ([]byte, error) {
+
+	method := "POST"
+
+	return client(method, url, payload)
 }

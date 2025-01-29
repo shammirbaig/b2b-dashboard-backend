@@ -2,6 +2,7 @@ package main
 
 import (
 	"backend/lr"
+	"encoding/json"
 
 	"github.com/savsgio/atreugo/v11"
 )
@@ -25,8 +26,21 @@ func main() {
 
 func createOrg(ctx *atreugo.RequestCtx) error {
 
-	// Handle the request
-	lr.Test()
+	// Get the request body
+	var permission = struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}{}
 
-	return ctx.JSONResponse("Org created successfully", 201)
+	if err := json.Unmarshal(ctx.PostBody(), &permission); err != nil {
+		return ctx.ErrorResponse(err, 400)
+	}
+
+	// Handle the request
+	data, err := lr.Login(permission.Email, permission.Password)
+	if err != nil {
+		return ctx.ErrorResponse(err, 500)
+	}
+
+	return ctx.JSONResponse(data, 201)
 }
