@@ -4,8 +4,9 @@ const (
 	lrURL = "https://devapi.lrinternal.com"
 )
 
-func generateM2MToken() {
+func generateM2MToken() string {
 	// Generate a new M2M token
+	return "m2mToken"
 }
 
 func Test() {
