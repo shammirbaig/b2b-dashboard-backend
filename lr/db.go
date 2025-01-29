@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	devMongoDb = "mongodb+srv://lrdbdev:jLeNfBAJsTtUoaIV@ciam-dev.dpore.mongodb.net/?retryWrites=true&w=majority"
+	devMongoDb = ""
 	dbName     = "LoginRadiusDev"
 )
 
