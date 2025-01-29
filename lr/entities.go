@@ -167,3 +167,11 @@ type AppResponse struct {
 	ProductPlan           *string   `json:"ProductPlan"`
 	EnvironmentTag        string    `json:"EnvironmentTag"`
 }
+
+type SendInvitation struct {
+	Email   string   `json:"Email" validate:"required"`
+	RoleIds []string `json:"RoleIds" validate:"required,min=1,dive,required"`
+	// OrgId         string   `json:"-"`
+	InvitationUrl string `json:"InvitationUrl"`
+	InviterUid    string `json:"InviterUid" validate:"required"`
+}

@@ -21,6 +21,7 @@ func main() {
 
 	authCtx.POST("/login", login)
 	authCtx.POST("/org/{id}/create", createOrg)
+	authCtx.POST("/org/{id}/invite", inviteUser)
 
 	if err := server.ListenAndServe(); err != nil {
 		panic(err)
@@ -62,6 +63,24 @@ func createOrg(ctx *atreugo.RequestCtx) error {
 
 	// Handle the request
 	if err := lr.CreateOrg(tenantOrgID, org.Name); err != nil {
+		return ctx.ErrorResponse(err, 500)
+	}
+
+	return ctx.JSONResponse(nil, 201)
+}
+
+func inviteUser(ctx *atreugo.RequestCtx) error {
+
+	// Get the request body
+	var invite lr.SendInvitation
+	if err := json.Unmarshal(ctx.PostBody(), &invite); err != nil {
+		return ctx.ErrorResponse(err, 400)
+	}
+
+	orgId := ctx.UserValue("id").(string)
+
+	// Handle the request
+	if err := lr.InviteUser(orgId, invite); err != nil {
 		return ctx.ErrorResponse(err, 500)
 	}
 

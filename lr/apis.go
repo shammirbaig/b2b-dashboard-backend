@@ -21,6 +21,10 @@ func createAppUrl() string {
 }
 
 func createOrgUrl() string {
-
 	return lrURL + "/v2/manage/organizations"
+}
+
+func sendInvitationUrl(orgId string) string {
+	url := lrURL + "/v2/manage/organizations/{orgId}/invitations"
+	return strings.Replace(url, "{orgId}", orgId, 1)
 }

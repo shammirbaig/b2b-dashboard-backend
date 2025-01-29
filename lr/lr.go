@@ -92,6 +92,7 @@ func CreateOrg(tenantOrgID string, newOrgName string) error {
 		"IsAuthRestrictedToDomain": false
 	}`)
 
+	// this creates in nike-com db but how do we differentiate the hirearcy
 	orgRes, err := Post(createOrgUrl(), orgPayload)
 	if err != nil {
 		return err
@@ -100,6 +101,21 @@ func CreateOrg(tenantOrgID string, newOrgName string) error {
 	fmt.Println("OrgRes:", string(orgRes))
 	var orgDataResp Organizations
 	if err := json.NewDecoder(bytes.NewReader(orgRes)).Decode(&orgDataResp); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func InviteUser(orgId string, invite SendInvitation) error {
+
+	payload, err := json.Marshal(invite)
+	if err != nil {
+		return err
+	}
+
+	_, err = Post(sendInvitationUrl(orgId), bytes.NewReader(payload))
+	if err != nil {
 		return err
 	}
 
