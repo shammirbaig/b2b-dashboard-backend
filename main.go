@@ -17,7 +17,7 @@ func main() {
 
 	authCtx := server.NewGroupPath("/auth")
 
-	lr.Test()
+	// lr.Test()
 
 	authCtx.POST("/login", login)
 	authCtx.POST("/org/{id}/create", createOrg)
