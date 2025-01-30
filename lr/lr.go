@@ -173,6 +173,24 @@ func GetAllOrganizationsOfTenant() ([]AllOrganizationsResponse, error) {
 	return orgsResp.Data, nil
 }
 
+func GetAllInvitationsOfOrganization(orgID string) ([]InvitationResponse, error) {
+	data, err := Get(getAllInvitationsOfOrganization(orgID))
+	if err != nil {
+		return nil, err
+	}
+
+	var invitationsResp struct {
+		Data       []InvitationResponse `json:"Data"`
+		TotalCount int                  `json:"TotalCount"`
+	}
+
+	if err := json.NewDecoder(bytes.NewReader(data)).Decode(&invitationsResp); err != nil {
+		return nil, err
+	}
+
+	return invitationsResp.Data, nil
+}
+
 func Test() {
 	if err := CreateOrg("qwer", "niketest123"); err != nil {
 		fmt.Println("Error:", err)
@@ -199,4 +217,9 @@ func TestGetAllRolesOfAnOrg() {
 func TestGetAllOrganizationsOfTenant() {
 	orgs, _ := GetAllOrganizationsOfTenant()
 	fmt.Println("Response:", orgs)
+}
+
+func TestGetAllInvitationsOfOrganization() {
+	invitations, _ := GetAllInvitationsOfOrganization("org_Z5pkOZ-0eGkkbhQ1")
+	fmt.Println("Response:", invitations)
 }

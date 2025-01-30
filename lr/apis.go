@@ -1,6 +1,8 @@
 package lr
 
-import "strings"
+import (
+	"strings"
+)
 
 const (
 	lrURL  = "https://devapi.lrinternal.com"
@@ -42,4 +44,9 @@ func getAllRolesOfAnOrg(orgId string) string {
 }
 func getOrgsOfTenantUrl() string {
 	return lrURL + "/v2/manage/organizations"
+}
+
+func getAllInvitationsOfOrganization(orgID string) string {
+	url := lrURL + "/v2/manage/organizations/{orgId}/invitations"
+	return strings.Replace(url, "{orgId}", orgID, 1)
 }

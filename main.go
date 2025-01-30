@@ -21,11 +21,15 @@ func main() {
 
 	lr.NewMongoClient()
 
-	lr.TestGetAllOrganizationsOfTenant()
+	lr.TestGetAllInvitationsOfOrganization()
 
 	authCtx.POST("/login", login)
 	authCtx.POST("/org/{id}/create", createOrg)
 	authCtx.POST("/org/{id}/invite", inviteUser)
+	authCtx.GET("/org/{id}/invitations", getAllInvitationsOfOrganization)
+	authCtx.GET("/org/{id}/users", getAllUsersOfAnOrganization)
+	authCtx.GET("/org/{id}/roles", getAllRolesOfAnOrg)
+	authCtx.GET("/orgs", getAllOrganizationsOfTenant)
 
 	if err := server.ListenAndServe(); err != nil {
 		panic(err)
@@ -89,4 +93,77 @@ func inviteUser(ctx *atreugo.RequestCtx) error {
 	}
 
 	return ctx.JSONResponse(nil, 201)
+}
+
+func getAllInvitationsOfOrganization(ctx *atreugo.RequestCtx) error {
+
+	orgId := ctx.UserValue("id").(string)
+
+	// Handle the request
+	data, err := lr.GetAllInvitationsOfOrganization(orgId)
+	if err != nil {
+		return ctx.ErrorResponse(err, 500)
+	}
+
+	res := struct {
+		Data []lr.InvitationResponse `json:"Data"`
+	}{
+		Data: data,
+	}
+
+	return ctx.JSONResponse(res, 200)
+}
+
+func getAllUsersOfAnOrganization(ctx *atreugo.RequestCtx) error {
+
+	orgId := ctx.UserValue("id").(string)
+
+	// Handle the request
+	data, err := lr.GetAllUsersOfAnOrganization(orgId)
+	if err != nil {
+		return ctx.ErrorResponse(err, 500)
+	}
+
+	res := struct {
+		Data []lr.UserRole `json:"Data"`
+	}{
+		Data: data,
+	}
+
+	return ctx.JSONResponse(res, 200)
+}
+
+func getAllRolesOfAnOrg(ctx *atreugo.RequestCtx) error {
+
+	orgId := ctx.UserValue("id").(string)
+
+	// Handle the request
+	data, err := lr.GetAllRolesOfAnOrg(orgId)
+	if err != nil {
+		return ctx.ErrorResponse(err, 500)
+	}
+
+	res := struct {
+		Data []lr.RoleResponse `json:"Data"`
+	}{
+		Data: data,
+	}
+	return ctx.JSONResponse(res, 200)
+}
+
+func getAllOrganizationsOfTenant(ctx *atreugo.RequestCtx) error {
+
+	// Handle the request
+	data, err := lr.GetAllOrganizationsOfTenant()
+	if err != nil {
+		return ctx.ErrorResponse(err, 500)
+	}
+
+	res := struct {
+		Data []lr.AllOrganizationsResponse `json:"Data"`
+	}{
+		Data: data,
+	}
+
+	return ctx.JSONResponse(res, 200)
 }
