@@ -15,13 +15,6 @@ func main() {
 		GracefulShutdown: true,
 	})
 
-	// cors := cors.New(cors.Config{
-	// 	AllowedOrigins:   []string{"*"},
-	// 	AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-	// 	AllowedHeaders:   []string{"*"},
-	// 	AllowCredentials: true,
-	// })
-
 	server.UseBefore(func(ctx *atreugo.RequestCtx) error {
 		ctx.Response.Header.Set("Access-Control-Allow-Origin", "*")
 		ctx.Response.Header.Set("Access-Control-Allow-Headers", "*")
@@ -36,9 +29,6 @@ func main() {
 	godotenv.Load(".env")
 
 	lr.NewMongoClient()
-
-	// lr.TestGetAllOrganizationsOfTenant()
-	//lr.TestGetAllInvitationsOfOrganization()
 
 	authCtx.GET("/test", func(ctx *atreugo.RequestCtx) error {
 		return ctx.TextResponse("Hello, World!")
