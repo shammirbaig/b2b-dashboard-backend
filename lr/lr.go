@@ -204,7 +204,7 @@ func GetAllOrganizationsOfTenant(orgId string) ([]AllOrganizationsResponse, erro
 	}
 
 	if appId == 0 {
-		return nil, nil
+		return make([]AllOrganizationsResponse, 0), nil
 	}
 
 	data, err := Get(getOrgsOfTenantUrl(), strconv.Itoa(appId))
