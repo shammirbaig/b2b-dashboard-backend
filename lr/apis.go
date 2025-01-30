@@ -68,3 +68,8 @@ func getRoleById(roleId string) string {
 	url := lrURL + "/v2/manage/roles/{roleId}"
 	return strings.Replace(url, "{roleId}", roleId, 1)
 }
+
+func getOrganizationDetails(orgId string) string {
+	url := lrURL + "/v2/manage/organizations/{orgId}"
+	return strings.Replace(url, "{orgId}", orgId, 1)
+}
