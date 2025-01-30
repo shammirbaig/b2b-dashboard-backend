@@ -51,7 +51,7 @@ func GetUserOrgs(uid string) ([]OrganizationResponse, error) {
 	}
 
 	for i, org := range orgsResp.Data {
-		name, _ := GetAnOrganizationDetailsName(ctx, org.OrgId)
+		name, _ := GetAnOrganizationDetailsName(org.OrgId)
 		orgsResp.Data[i].Name = name
 	}
 
@@ -254,8 +254,8 @@ func GetAllRolesOfUserInOrg(orgID, uid string) ([]RoleResponse, error) {
 	return rolesData, nil
 }
 
-func GetAnOrganizationDetailsName(ctx context.Context, orgID string) (string, error) {
-	data, err := Get(ctx, getOrganizationDetails(orgID), "")
+func GetAnOrganizationDetailsName(orgID string) (string, error) {
+	data, err := Get(getOrganizationDetails(orgID), "")
 	if err != nil {
 		return "", err
 	}
