@@ -37,7 +37,7 @@ func Login(email, password string) (string, []OrganizationResponse, error) {
 }
 
 func GetUserOrgs(uid string) ([]OrganizationResponse, error) {
-	data, err := Get(getOrgsOfUserUrl(uid))
+	data, err := Get(getOrgsOfUserUrl(uid), "")
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func GetUserOrgs(uid string) ([]OrganizationResponse, error) {
 }
 
 func GetAllUsersOfAnOrganization(orgID string) ([]UserRole, error) {
-	data, err := Get(getUsersOfOrgUrl(orgID))
+	data, err := Get(getUsersOfOrgUrl(orgID), "")
 	if err != nil {
 		return nil, err
 	}
@@ -159,7 +159,7 @@ func InviteUser(orgId string, invite SendInvitation) error {
 }
 
 func GetAllRolesOfAnOrg(orgId string) ([]RoleResponse, error) {
-	data, err := Get(getAllRolesOfAnOrg(orgId))
+	data, err := Get(getAllRolesOfAnOrg(orgId), "")
 	if err != nil {
 		return nil, err
 	}
@@ -175,8 +175,15 @@ func GetAllRolesOfAnOrg(orgId string) ([]RoleResponse, error) {
 	return rolesResp.Data, nil
 }
 
-func GetAllOrganizationsOfTenant() ([]AllOrganizationsResponse, error) {
-	data, err := Get(getOrgsOfTenantUrl())
+func GetAllOrganizationsOfTenant(orgId string) ([]AllOrganizationsResponse, error) {
+
+	//get AppId from the orgId-appId relation
+	appId, err := GetAppIdFromOrgIdMapping(mongoClient, orgId)
+	if err != nil {
+		return nil, err
+	}
+
+	data, err := Get(getOrgsOfTenantUrl(), strconv.Itoa(appId))
 	if err != nil {
 		return nil, err
 	}
@@ -193,7 +200,7 @@ func GetAllOrganizationsOfTenant() ([]AllOrganizationsResponse, error) {
 }
 
 func GetAllInvitationsOfOrganization(orgID string) ([]InvitationResponse, error) {
-	data, err := Get(getAllInvitationsOfOrganization(orgID))
+	data, err := Get(getAllInvitationsOfOrganization(orgID), "")
 	if err != nil {
 		return nil, err
 	}
@@ -211,7 +218,7 @@ func GetAllInvitationsOfOrganization(orgID string) ([]InvitationResponse, error)
 }
 
 func GetAllRolesOfUserInOrg(orgID, uid string) ([]RoleResponse, error) {
-	data, err := Get(getAllRolesOfUserInOrg(orgID, uid))
+	data, err := Get(getAllRolesOfUserInOrg(orgID, uid), "")
 	if err != nil {
 		return nil, err
 	}
@@ -249,7 +256,7 @@ func TestGetAllRolesOfAnOrg() {
 }
 
 func TestGetAllOrganizationsOfTenant() {
-	orgs, _ := GetAllOrganizationsOfTenant()
+	orgs, _ := GetAllOrganizationsOfTenant("org_Z5pkOZ-0eGkkbhQ1")
 	fmt.Println("Response:", orgs)
 }
 

@@ -268,3 +268,9 @@ type EmailVerification struct {
 	InviterUid        string               `bson:"InviterUid,omitempty" json:"InviterUid"`
 	InvitationToken   string               `bson:"InvitationToken,omitempty" json:"-"`
 }
+
+type LoginResponse struct {
+	organizationsList []OrganizationResponse `json:"organizationsList"`
+	userId            string                 `json:"userId"`
+	sessionToken      string                 `json:"sessionToken"`
+}

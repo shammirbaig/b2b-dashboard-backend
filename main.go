@@ -3,6 +3,7 @@ package main
 import (
 	"backend/lr"
 	"encoding/json"
+	"log"
 
 	"github.com/joho/godotenv"
 	"github.com/savsgio/atreugo/v11"
@@ -175,8 +176,9 @@ func getAllRolesOfAnOrg(ctx *atreugo.RequestCtx) error {
 
 func getAllOrganizationsOfTenant(ctx *atreugo.RequestCtx) error {
 
+	orgId := string(ctx.QueryArgs().Peek("orgId"))
 	// Handle the request
-	data, err := lr.GetAllOrganizationsOfTenant()
+	data, err := lr.GetAllOrganizationsOfTenant(orgId)
 	if err != nil {
 		return ctx.ErrorResponse(err, 500)
 	}

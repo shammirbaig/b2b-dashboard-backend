@@ -35,7 +35,7 @@ func dynamicClient(appid, customerid string, method, url string, payload io.Read
 	return body, nil
 }
 
-func client(method, url string, payload io.Reader) ([]byte, error) {
+func client(method, url string, payload io.Reader, appId string) ([]byte, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest(method, url, payload)
 
@@ -43,7 +43,12 @@ func client(method, url string, payload io.Reader) ([]byte, error) {
 		return nil, err
 	}
 	req.Header.Add("X-CustomerId", "7c9254057e2044c5b3fadf8bf0b3dd31")
-	req.Header.Add("X-AppId", "99207378")
+	req.Header.Add("X-AppId", func() string {
+		if appId == "" {
+			return "99207378"
+		}
+		return appId
+	}())
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Authorization", "Bearer "+GetM2MToken())
 	req.Header.Add("Access-Control-Allow-Origin", "*")
@@ -68,19 +73,19 @@ func client(method, url string, payload io.Reader) ([]byte, error) {
 	return body, nil
 }
 
-func Get(url string) ([]byte, error) {
+func Get(url, appId string) ([]byte, error) {
 	method := "GET"
 
 	payload := strings.NewReader(``)
 
-	return client(method, url, payload)
+	return client(method, url, payload, appId)
 }
 
 func Post(url string, payload io.Reader) ([]byte, error) {
 
 	method := "POST"
 
-	return client(method, url, payload)
+	return client(method, url, payload, "")
 }
 
 func DynamicPost(appid, customerid string, url string, payload io.Reader) ([]byte, error) {
@@ -94,5 +99,5 @@ func Put(url string, payload io.Reader) ([]byte, error) {
 
 	method := "PUT"
 
-	return client(method, url, payload)
+	return client(method, url, payload, "")
 }
