@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // Login returns the orgs that the user is a part of
@@ -231,6 +233,11 @@ func GetAllOrganizationsOfTenant(orgId string) ([]AllOrganizationsResponse, erro
 	//get AppId from the orgId-appId relation
 	appId, err := GetAppIdFromOrgIdMapping(mongoClient, orgId)
 	if err != nil {
+
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return make([]AllOrganizationsResponse, 0), nil
+		}
+
 		return nil, err
 	}
 
