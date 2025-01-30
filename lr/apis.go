@@ -15,3 +15,10 @@ func getOrgsOfUserUrl(uid string) string {
 
 	return strings.Replace(url, "{uid}", uid, 1)
 }
+
+func getUsersOfOrgUrl(orgID string) string {
+
+	url := lrURL + "/v2/manage/organizations/{orgId}/orgcontext"
+
+	return strings.Replace(url, "{orgId}", orgID, 1)
+}

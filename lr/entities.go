@@ -6,7 +6,7 @@ import (
 )
 
 type Organizations struct {
-	Id                       primitive.ObjectID  `bson:"_id,omitempty" json:"Id"`
+	Id                       string              `bson:"_id,omitempty" json:"Id"`
 	IsActive                 bool                `bson:"IsActive" json:"IsActive"`
 	IsDeleted                bool                `bson:"IsDeleted" json:"-"`
 	Name                     string              `bson:"Name" json:"Name"`
@@ -21,6 +21,14 @@ type Organizations struct {
 	CreatedDate              *TimeStamp          `bson:"CreatedDate" json:"CreatedDate"`
 	ModifiedDate             *TimeStamp          `bson:"ModifiedDate,omitempty" json:"ModifiedDate,omitempty"`
 	CreatedBy                *string             `bson:"CreatedBy,omitempty" json:"CreatedBy,omitempty"`
+}
+
+type OrganizationResponse struct {
+	Id          string    `json:"Id"`
+	RoleId      string    `json:"RoleId"`
+	OrgId       string    `json:"OrgId"`
+	Uid         string    `json:"Uid"`
+	CreatedDate time.Time `json:"CreatedDate"`
 }
 
 type Display struct {
@@ -138,4 +146,12 @@ type IDPCertificate struct {
 
 type TimeStamp struct {
 	*time.Time
+}
+
+type UserRole struct {
+	Id          string    `json:"Id"`
+	RoleId      string    `json:"RoleId"`
+	OrgId       string    `json:"OrgId"`
+	Uid         string    `json:"Uid"`
+	CreatedDate time.Time `json:"CreatedDate"`
 }
