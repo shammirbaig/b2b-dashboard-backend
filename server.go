@@ -1,5 +1,5 @@
 package main
 
 const (
-	serverURL = "localhost:8080"
+	serverURL = "0.0.0.0:8080"
 )
