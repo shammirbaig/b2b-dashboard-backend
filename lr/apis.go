@@ -57,3 +57,9 @@ func getAllInvitationsOfOrganization(orgID string) string {
 	url := lrURL + "/v2/manage/organizations/{orgId}/invitations"
 	return strings.Replace(url, "{orgId}", orgID, 1)
 }
+
+func getAllRolesOfUserInOrg(orgId, userId string) string {
+	url := lrURL + "/identity/v2/manage/account/{uid}/orgcontext/{orgId}"
+	url = strings.Replace(url, "{uid}", userId, 1)
+	return strings.Replace(url, "{orgId}", orgId, 1)
+}
