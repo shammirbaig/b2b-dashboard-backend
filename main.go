@@ -60,12 +60,22 @@ func login(ctx *atreugo.RequestCtx) error {
 	}
 
 	// Handle the request
-	data, err := lr.Login(permission.Email, permission.Password)
+	uid, data, err := lr.Login(permission.Email, permission.Password)
 	if err != nil {
 		return ctx.ErrorResponse(err, 500)
 	}
 
-	return ctx.JSONResponse(data, 201)
+	resp := struct {
+		UserId            string                    `json:"userId"`
+		OrganizationsList []lr.OrganizationResponse `json:"organizationsList"`
+		Token             string                    `json:"token"`
+	}{
+		UserId:            uid,
+		OrganizationsList: data,
+		Token:             "",
+	}
+
+	return ctx.JSONResponse(resp, 201)
 }
 
 func createOrg(ctx *atreugo.RequestCtx) error {

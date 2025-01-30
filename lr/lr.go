@@ -9,11 +9,11 @@ import (
 )
 
 // Login returns the orgs that the user is a part of
-func Login(email, password string) ([]OrganizationResponse, error) {
+func Login(email, password string) (string, []OrganizationResponse, error) {
 
 	data, err := Post(loginUrl, strings.NewReader(`{"email":"`+email+`","password":"`+password+`"}`))
 	if err != nil {
-		return nil, err
+		return "", nil, err
 	}
 
 	var tokenResp struct {
@@ -23,16 +23,16 @@ func Login(email, password string) ([]OrganizationResponse, error) {
 	}
 
 	if err := json.NewDecoder(bytes.NewReader(data)).Decode(&tokenResp); err != nil {
-		return nil, err
+		return "", nil, err
 	}
 
 	orgs, err := GetUserOrgs(tokenResp.Profile.Uid)
 	if err != nil {
-		return nil, err
+		return "", nil, err
 	}
 
 	fmt.Println(orgs)
-	return orgs, nil
+	return tokenResp.Profile.Uid, orgs, nil
 }
 
 func GetUserOrgs(uid string) ([]OrganizationResponse, error) {
@@ -233,8 +233,8 @@ func Test() {
 }
 
 func TestLogin() {
-	orgs, _ := Login("nike@mailinator.com", "123456")
-	fmt.Println("Response:", orgs)
+	// orgs, _ := Login("nike@mailinator.com", "123456")
+	// fmt.Println("Response:", orgs)
 }
 
 func TestGetAllUsersOfAnOrganization() {
