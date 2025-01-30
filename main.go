@@ -22,7 +22,7 @@ func main() {
 
 	lr.NewMongoClient()
 
-	lr.TestGetAllInvitationsOfOrganization()
+	//lr.TestGetAllInvitationsOfOrganization()
 
 	authCtx.POST("/login", login)
 	authCtx.POST("/org/{id}/create", createOrg)
