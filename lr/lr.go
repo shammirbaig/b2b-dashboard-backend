@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -68,19 +69,21 @@ func GetAllUsersOfAnOrganization(orgID string) ([]UserRole, error) {
 	return usersResp.Data, nil
 }
 
-func CreateOrg(tenantOrgID string, newOrgName string) error {
+func CreateOrg(tenantOrgID string, newOrgName string, oldOrgName string) error {
 
 	// create an app : 7c9254057e2044c5b3fadf8bf0b3dd31
 
 	// AppName should be current org name and mark its name as appname
-	payload := strings.NewReader(`{
-		"AppName": "niketest123", 
+	payload := `
+		"AppName": "{oldOrgName}", 
 		"Domain": "login2website.com; localhost:3000",
 		"CallbackUrl": "login2website.com; localhost",
 		"DevDomain": "login2website.com"
-	}`)
+	}`
 
-	res, err := Post(createAppUrl(), payload)
+	payload = strings.Replace(payload, "{oldOrgName}", oldOrgName, 1)
+
+	res, err := Post(createAppUrl(), strings.NewReader(payload))
 	if err != nil {
 		return err
 	}
@@ -90,7 +93,21 @@ func CreateOrg(tenantOrgID string, newOrgName string) error {
 		return err
 	}
 
-	// fmt.Printf("AppData: %+v %+v\n", appData, appData.AppId)
+	feature := strings.NewReader(`
+	{
+		"Data": [
+			{
+				"feature": "enable_b2b_identity",
+				"status": true
+			}
+		]
+	}`)
+
+	// turn on b2b feature
+	_, err = Put(turnB2BApp(appData.OwnerId, strconv.Itoa(appData.AppId)), feature)
+	if err != nil {
+		return err
+	}
 
 	// create a relation between orgid and appid
 	if err := CreateAppidToOrgidMapping(mongoClient, appData.AppId, tenantOrgID); err != nil {
@@ -98,8 +115,8 @@ func CreateOrg(tenantOrgID string, newOrgName string) error {
 	}
 
 	// create an org for the above passed data
-	orgPayload := strings.NewReader(`{
-		"Name": "test-nike-hyd",
+	orgPayload := `{
+		"Name": "{orgName}",
 		"Domains": [
 			{
 				"DomainName": "loginradius.com",
@@ -107,15 +124,16 @@ func CreateOrg(tenantOrgID string, newOrgName string) error {
 			}
 		],
 		"IsAuthRestrictedToDomain": false
-	}`)
+	}`
+
+	orgPayload = strings.Replace(orgPayload, "{orgName}", newOrgName, 1)
 
 	// this creates in nike-com db but how do we differentiate the hirearcy
-	orgRes, err := Post(createOrgUrl(), orgPayload)
+	orgRes, err := DynamicPost(strconv.Itoa(appData.AppId), appData.OwnerId, createOrgUrl(), strings.NewReader(orgPayload))
 	if err != nil {
 		return err
 	}
 
-	fmt.Println("OrgRes:", string(orgRes))
 	var orgDataResp Organizations
 	if err := json.NewDecoder(bytes.NewReader(orgRes)).Decode(&orgDataResp); err != nil {
 		return err
@@ -174,11 +192,9 @@ func GetAllOrganizationsOfTenant() ([]AllOrganizationsResponse, error) {
 }
 
 func Test() {
-	if err := CreateOrg("qwer", "niketest123"); err != nil {
+	if err := CreateOrg("qwer", "niketest123", ""); err != nil {
 		fmt.Println("Error:", err)
 	}
-
-	// fmt.Println("Response:", orgs)
 }
 
 func TestLogin() {
