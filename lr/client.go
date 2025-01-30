@@ -1,6 +1,8 @@
 package lr
 
 import (
+	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -56,6 +58,12 @@ func client(method, url string, payload io.Reader, appId string) ([]byte, error)
 		return nil, err
 	}
 	defer res.Body.Close()
+
+	fmt.Println(res.Body)
+
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.New(res.Status)
+	}
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {

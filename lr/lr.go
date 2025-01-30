@@ -3,6 +3,7 @@ package lr
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -13,7 +14,7 @@ func Login(email, password string) (string, []OrganizationResponse, error) {
 
 	data, err := Post(loginUrl, strings.NewReader(`{"email":"`+email+`","password":"`+password+`"}`))
 	if err != nil {
-		return "", nil, err
+		return "", nil, errors.New("invalid credentials")
 	}
 
 	var tokenResp struct {
