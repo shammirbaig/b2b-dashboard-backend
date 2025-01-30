@@ -30,7 +30,7 @@ func main() {
 	})
 	authCtx.POST("/login", login)
 	authCtx.POST("/org/{id}/create", createOrg)
-	authCtx.POST("/org/{id}/invite", inviteUser)
+	authCtx.POST("/org/{id}/invitations", inviteUser)
 	authCtx.GET("/org/{id}/invitations", getAllInvitationsOfOrganization)
 	authCtx.GET("/org/{id}/users", getAllUsersOfAnOrganization)
 	authCtx.GET("/org/{id}/roles", getAllRolesOfAnOrg)
