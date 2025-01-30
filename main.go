@@ -3,6 +3,7 @@ package main
 import (
 	"backend/lr"
 	"encoding/json"
+
 	"github.com/joho/godotenv"
 	"github.com/savsgio/atreugo/v11"
 )
@@ -61,7 +62,8 @@ func createOrg(ctx *atreugo.RequestCtx) error {
 
 	// Get the request body
 	var org = struct {
-		Name string `json:"name"`
+		Name    string `json:"name"`
+		OldName string `json:"oldname"`
 	}{}
 	if err := json.Unmarshal(ctx.PostBody(), &org); err != nil {
 		return ctx.ErrorResponse(err, 400)
@@ -70,7 +72,7 @@ func createOrg(ctx *atreugo.RequestCtx) error {
 	tenantOrgID := ctx.UserValue("id").(string)
 
 	// Handle the request
-	if err := lr.CreateOrg(tenantOrgID, org.Name); err != nil {
+	if err := lr.CreateOrg(tenantOrgID, org.Name, org.OldName); err != nil {
 		return ctx.ErrorResponse(err, 500)
 	}
 
