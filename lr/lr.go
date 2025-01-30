@@ -199,22 +199,22 @@ func GetAllOrganizationsOfTenant(orgId string) ([]AllOrganizationsResponse, erro
 	return orgsResp.Data, nil
 }
 
-func GetAllInvitationsOfOrganization(orgID string) ([]InvitationResponse, error) {
+func GetAllInvitationsOfOrganization(orgID string) (*InvitationResponse, error) {
 	data, err := Get(getAllInvitationsOfOrganization(orgID), "")
 	if err != nil {
 		return nil, err
 	}
 
-	var invitationsResp struct {
-		Data       []InvitationResponse `json:"Data"`
-		TotalCount int                  `json:"TotalCount"`
-	}
-
-	if err := json.NewDecoder(bytes.NewReader(data)).Decode(&invitationsResp); err != nil {
+	var invitationsResp InvitationResponse
+	if err := json.Unmarshal(data, &invitationsResp); err != nil {
 		return nil, err
 	}
 
-	return invitationsResp.Data, nil
+	// if err := json.NewDecoder(bytes.NewReader(data)).Decode(&invitationsResp); err != nil {
+	// 	return nil, err
+	// }
+
+	return &invitationsResp, nil
 }
 
 func GetAllRolesOfUserInOrg(orgID, uid string) ([]RoleResponse, error) {

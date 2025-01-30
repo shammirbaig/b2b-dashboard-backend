@@ -237,37 +237,46 @@ type AllOrganizationsResponse struct {
 }
 
 type InvitationResponse struct {
-	Data       []EmailVerification `json:"Data"`
-	TotalCount int64               `json:"TotalCount"`
+	Data       []EmailVerificationResp `json:"Data"`
+	TotalCount int64                   `json:"TotalCount"`
 }
 
-type EmailVerification struct {
-	Id                primitive.ObjectID   `bson:"_id,omitempty" json:"Id"`
-	IsVerified        bool                 `bson:"IsVerified" json:"-"`
-	IsActive          bool                 `bson:"isActive" json:"-"`
-	IsUsed            bool                 `bson:"IsUsed" json:"-"`
-	AppId             *int                 `bson:"AppId,omitempty" json:"-"`
-	Type              *uint8               `bson:"Type" json:"-"`
-	EmailType         *string              `bson:"EmailType,omitempty" json:"-"`
-	ClientGuid        *string              `bson:"ClientGuid,omitempty" json:"-"`
-	Otp               *string              `bson:"Otp" json:"-"`
-	GUID              *string              `bson:"GUID" json:"-"`
-	Uid               *string              `bson:"Uid,omitempty" json:"-"`
-	FK_UserId         string               `bson:"FK_UserId" json:"-"`
-	EMailId           string               `bson:"EMailId" json:"EmailId"`
-	Date              time.Time            `bson:"Date" json:"CreatedDate"`
-	ExpirationDate    time.Time            `bson:"ExpirationDate" json:"ExpirationDate"`
-	WorkflowSessionId *string              `bson:"wsid,omitempty" json:"-"`
-	ClientId          *string              `bson:"cid,omitempty" json:"-"`
-	IOSendEmailFlow   *bool                `bson:"iosendemailflow,omitempty" json:"-"`
-	OrgId             primitive.ObjectID   `bson:"OrgId,omitempty" json:"OrgId"`
-	RoleIds           []primitive.ObjectID `bson:"RoleIds,omitempty" json:"RoleIds"`
-	ResentCount       int                  `bson:"ResentCount,omitempty" json:"-"` //Added if we need to track the number of times the email has been resent
-	ModifiedDate      time.Time            `bson:"ModifiedDate,omitempty" json:"ModifiedDate"`
-	InvitationUrl     string               `bson:"InvitationUrl,omitempty" json:"-"`
-	InviterUid        string               `bson:"InviterUid,omitempty" json:"InviterUid"`
-	InvitationToken   string               `bson:"InvitationToken,omitempty" json:"-"`
+type EmailVerificationResp struct {
+	Id      string    `json:"Id"`
+	OrgId   string    `json:"OrgId,omitempty"`
+	RoleIds []string  `json:"RoleIds,omitempty"`
+	EMailId string    `json:"EmailId"`
+	Date    time.Time `json:"CreatedDate"`
+	Status  string    `json:"Status"`
 }
+
+// type EmailVerification struct {
+// 	Id                string               `bson:"_id,omitempty" json:"Id"`
+// 	IsVerified        bool                 `bson:"IsVerified" json:"-"`
+// 	IsActive          bool                 `bson:"isActive" json:"-"`
+// 	IsUsed            bool                 `bson:"IsUsed" json:"-"`
+// 	AppId             *int                 `bson:"AppId,omitempty" json:"-"`
+// 	Type              *uint8               `bson:"Type" json:"-"`
+// 	EmailType         *string              `bson:"EmailType,omitempty" json:"-"`
+// 	ClientGuid        *string              `bson:"ClientGuid,omitempty" json:"-"`
+// 	Otp               *string              `bson:"Otp" json:"-"`
+// 	GUID              *string              `bson:"GUID" json:"-"`
+// 	Uid               *string              `bson:"Uid,omitempty" json:"-"`
+// 	FK_UserId         string               `bson:"FK_UserId" json:"-"`
+// 	EMailId           string               `bson:"EMailId" json:"EmailId"`
+// 	Date              time.Time            `bson:"Date" json:"CreatedDate"`
+// 	ExpirationDate    time.Time            `bson:"ExpirationDate" json:"ExpirationDate"`
+// 	WorkflowSessionId *string              `bson:"wsid,omitempty" json:"-"`
+// 	ClientId          *string              `bson:"cid,omitempty" json:"-"`
+// 	IOSendEmailFlow   *bool                `bson:"iosendemailflow,omitempty" json:"-"`
+// 	OrgId             primitive.ObjectID   `bson:"OrgId,omitempty" json:"OrgId"`
+// 	RoleIds           []primitive.ObjectID `bson:"RoleIds,omitempty" json:"RoleIds"`
+// 	ResentCount       int                  `bson:"ResentCount,omitempty" json:"-"` //Added if we need to track the number of times the email has been resent
+// 	ModifiedDate      time.Time            `bson:"ModifiedDate,omitempty" json:"ModifiedDate"`
+// 	InvitationUrl     string               `bson:"InvitationUrl,omitempty" json:"-"`
+// 	InviterUid        string               `bson:"InviterUid,omitempty" json:"InviterUid"`
+// 	InvitationToken   string               `bson:"InvitationToken,omitempty" json:"-"`
+// }
 
 type LoginResponse struct {
 	organizationsList []OrganizationResponse `json:"organizationsList"`

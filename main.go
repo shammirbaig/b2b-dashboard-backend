@@ -128,13 +128,7 @@ func getAllInvitationsOfOrganization(ctx *atreugo.RequestCtx) error {
 		return ctx.ErrorResponse(err, http.StatusForbidden)
 	}
 
-	res := struct {
-		Data []lr.InvitationResponse `json:"Data"`
-	}{
-		Data: data,
-	}
-
-	return ctx.JSONResponse(res, http.StatusOK)
+	return ctx.JSONResponse(*data, http.StatusOK)
 }
 
 func getAllUsersOfAnOrganization(ctx *atreugo.RequestCtx) error {
