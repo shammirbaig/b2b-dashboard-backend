@@ -1,6 +1,8 @@
 package lr
 
-import "strings"
+import (
+	"strings"
+)
 
 const (
 	lrURL  = "https://devapi.lrinternal.com"
@@ -49,4 +51,9 @@ func turnB2BApp(cid, appid string) string {
 	url := "https://devpartner.lrinternal.com/v2/customer/{cid}/app/{appid}/feature?partnerKey=C6qM8fngbypF7z9BP5DzkzRfd4QShSQMP3JATjSnnAzn5zhNHXokerLcKYQbmo9pBibH36miKi&partnerSecret=AnyzXDkBt5sbJb6SDpjrYj4eLBAgmr49JETxePHhApmHnTdBYJoBrFtTbdpiPoKSsYhdReFNe9gTXFPfbJb69"
 	u := strings.Replace(url, "{cid}", cid, 1)
 	return strings.Replace(u, "{appid}", appid, 1)
+}
+
+func getAllInvitationsOfOrganization(orgID string) string {
+	url := lrURL + "/v2/manage/organizations/{orgId}/invitations"
+	return strings.Replace(url, "{orgId}", orgID, 1)
 }
