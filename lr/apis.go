@@ -63,3 +63,8 @@ func getAllRolesOfUserInOrg(orgId, userId string) string {
 	url = strings.Replace(url, "{uid}", userId, 1)
 	return strings.Replace(url, "{orgId}", orgId, 1)
 }
+
+func getRoleById(roleId string) string {
+	url := lrURL + "/v2/manage/roles/{roleId}"
+	return strings.Replace(url, "{roleId}", roleId, 1)
+}

@@ -223,15 +223,30 @@ func GetAllRolesOfUserInOrg(orgID, uid string) ([]RoleResponse, error) {
 		return nil, err
 	}
 
-	var rolesResp struct {
-		Data []RoleResponse `json:"Data"`
+	var userRolesResp struct {
+		Data []UserRole `json:"Data"`
 	}
 
-	if err := json.NewDecoder(bytes.NewReader(data)).Decode(&rolesResp); err != nil {
+	if err := json.NewDecoder(bytes.NewReader(data)).Decode(&userRolesResp); err != nil {
 		return nil, err
 	}
 
-	return rolesResp.Data, nil
+	var rolesData []RoleResponse
+	for _, userRole := range userRolesResp.Data {
+		roles, err := Get(getRoleById(userRole.RoleId), "")
+		if err != nil {
+			return nil, err
+		}
+
+		var roleResp RoleResponse
+		if err := json.NewDecoder(bytes.NewReader(roles)).Decode(&roleResp); err != nil {
+			return nil, err
+		}
+
+		rolesData = append(rolesData, roleResp)
+	}
+
+	return rolesData, nil
 }
 
 func Test() {
