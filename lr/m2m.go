@@ -21,9 +21,6 @@ const (
 
 // Token storage
 var (
-	clientID     = os.Getenv("OPENID_CLIENT_ID")
-	clientSecret = os.Getenv("OPENID_CLIENT_SECRET")
-
 	m2mToken    string
 	tokenExpiry int64
 	mu          sync.Mutex
@@ -54,8 +51,8 @@ func GetM2MToken() string {
 // Calls the API to generate a new M2M token
 func generateM2MToken() (string, int64, error) {
 	payload := map[string]string{
-		"client_id":     clientID,
-		"client_secret": clientSecret,
+		"client_id":     os.Getenv("OPENID_CLIENT_ID"),
+		"client_secret": os.Getenv("OPENID_CLIENT_SECRET"),
 		"grant_type":    "client_credentials",
 		"audience":      audience,
 	}

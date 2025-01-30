@@ -2,6 +2,7 @@ package lr
 
 import (
 	"context"
+	"os"
 	"sync"
 	"time"
 
@@ -10,17 +11,12 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-const (
-	devMongoDb = ""
-	dbName     = "LoginRadiusDev"
+var (
+	dbName = "LoginRadiusDev"
 )
 
 var mongoClientOnce sync.Once
 var mongoClient *mongo.Database
-
-func init() {
-	NewMongoClient()
-}
 
 func connectToMongo(connStr string) *mongo.Client {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(uint64(1000000000)))
@@ -37,6 +33,7 @@ func connectToMongo(connStr string) *mongo.Client {
 }
 
 func NewMongoClient() *mongo.Database {
+	devMongoDb := os.Getenv("MONGO_URI")
 	mongoClientOnce.Do(func() {
 		mongoClient = connectToMongo(devMongoDb).Database(dbName)
 	})

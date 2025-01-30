@@ -3,7 +3,7 @@ package main
 import (
 	"backend/lr"
 	"encoding/json"
-
+	"github.com/joho/godotenv"
 	"github.com/savsgio/atreugo/v11"
 )
 
@@ -17,7 +17,11 @@ func main() {
 
 	authCtx := server.NewGroupPath("/auth")
 
-	// lr.Test()
+	godotenv.Load(".env")
+
+	lr.NewMongoClient()
+
+	lr.TestGetAllOrganizationsOfTenant()
 
 	authCtx.POST("/login", login)
 	authCtx.POST("/org/{id}/create", createOrg)

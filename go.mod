@@ -3,6 +3,7 @@ module backend
 go 1.23.4
 
 require (
+	github.com/joho/godotenv v1.5.1
 	github.com/savsgio/atreugo/v11 v11.13.2
 	go.mongodb.org/mongo-driver v1.17.2
 )

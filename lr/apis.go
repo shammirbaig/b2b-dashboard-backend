@@ -35,3 +35,11 @@ func getUsersOfOrgUrl(orgID string) string {
 
 	return strings.Replace(url, "{orgId}", orgID, 1)
 }
+
+func getAllRolesOfAnOrg(orgId string) string {
+	url := lrURL + "/v2/manage/organizations/{orgId}/roles"
+	return strings.Replace(url, "{orgId}", orgId, 1)
+}
+func getOrgsOfTenantUrl() string {
+	return lrURL + "/v2/manage/organizations"
+}

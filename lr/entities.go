@@ -191,3 +191,47 @@ type UserRole struct {
 	Uid         string    `json:"Uid"`
 	CreatedDate time.Time `json:"CreatedDate"`
 }
+
+type RoleResponse struct {
+	ID           string          `json:"Id"`
+	Name         string          `json:"Name"`
+	Description  string          `json:"Description"`
+	Level        string          `json:"Level"`
+	OrgId        string          `json:"OrgId"`
+	Permissions  []PermissionB2B `json:"Permissions"`
+	CreatedDate  time.Time       `bson:"CreatedDate" json:"CreatedDate"`
+	ModifiedDate time.Time       `bson:"ModifiedDate" json:"ModifiedDate"`
+}
+
+type PermissionB2B struct {
+	ID          string `json:"Id"`
+	Name        string `json:"Name"`
+	Description string `json:"Description"`
+}
+
+type AllOrganizationsResponse struct {
+	Id                       string      `json:"Id"`
+	IsActive                 bool        `json:"IsActive"`
+	Name                     string      `json:"Name"`
+	Metadata                 interface{} `json:"Metadata"`
+	IsAuthRestrictedToDomain bool        `json:"IsAuthRestrictedToDomain"`
+	Policies                 struct {
+		PasswordPolicy struct {
+			MinLength          int  `json:"MinLength"`
+			MaxLength          int  `json:"MaxLength"`
+			RequireUppercase   bool `json:"RequireUppercase"`
+			RequireLowercase   bool `json:"RequireLowercase"`
+			RequireNumber      bool `json:"RequireNumber"`
+			RequireSpecialChar bool `json:"RequireSpecialChar"`
+			ExpiryDays         int  `json:"ExpiryDays"`
+		} `json:"PasswordPolicy"`
+		MFAPolicy struct {
+			EnforcementMode string `json:"EnforcementMode"`
+		} `json:"MFAPolicy"`
+		SessionPolicy struct {
+			AccessTokenTTL  int `json:"AccessTokenTTL"`
+			RefreshTokenTTL int `json:"RefreshTokenTTL"`
+		} `json:"SessionPolicy"`
+	} `json:"Policies"`
+	CreatedDate time.Time `json:"CreatedDate"`
+}

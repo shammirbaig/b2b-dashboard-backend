@@ -139,6 +139,40 @@ func InviteUser(orgId string, invite SendInvitation) error {
 	return nil
 }
 
+func GetAllRolesOfAnOrg(orgId string) ([]RoleResponse, error) {
+	data, err := Get(getAllRolesOfAnOrg(orgId))
+	if err != nil {
+		return nil, err
+	}
+
+	var rolesResp struct {
+		Data []RoleResponse `json:"Data"`
+	}
+
+	if err := json.NewDecoder(bytes.NewReader(data)).Decode(&rolesResp); err != nil {
+		return nil, err
+	}
+
+	return rolesResp.Data, nil
+}
+
+func GetAllOrganizationsOfTenant() ([]AllOrganizationsResponse, error) {
+	data, err := Get(getOrgsOfTenantUrl())
+	if err != nil {
+		return nil, err
+	}
+
+	var orgsResp struct {
+		Data []AllOrganizationsResponse `json:"Data"`
+	}
+
+	if err := json.NewDecoder(bytes.NewReader(data)).Decode(&orgsResp); err != nil {
+		return nil, err
+	}
+
+	return orgsResp.Data, nil
+}
+
 func Test() {
 	if err := CreateOrg("qwer", "niketest123"); err != nil {
 		fmt.Println("Error:", err)
@@ -155,4 +189,14 @@ func TestLogin() {
 func TestGetAllUsersOfAnOrganization() {
 	users, _ := GetAllUsersOfAnOrganization("org_Z5pkOZ-0eGkkbhQ1")
 	fmt.Println("Response:", users)
+}
+
+func TestGetAllRolesOfAnOrg() {
+	roles, _ := GetAllRolesOfAnOrg("org_Z5pkOZ-0eGkkbhQ1")
+	fmt.Println("Response:", roles)
+}
+
+func TestGetAllOrganizationsOfTenant() {
+	orgs, _ := GetAllOrganizationsOfTenant()
+	fmt.Println("Response:", orgs)
 }
