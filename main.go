@@ -63,7 +63,7 @@ func login(ctx *atreugo.RequestCtx) error {
 	// Handle the request
 	uid, data, err := lr.Login(permission.Email, permission.Password)
 	if err != nil {
-		return ctx.ErrorResponse(err, http.StatusForbidden)
+		return ctx.JSONResponse(err.Error(), http.StatusForbidden)
 	}
 
 	resp := struct {
