@@ -16,6 +16,19 @@ func getOrgsOfUserUrl(uid string) string {
 	return strings.Replace(url, "{uid}", uid, 1)
 }
 
+func createAppUrl() string {
+	return lrURL + "/v2/manage/app"
+}
+
+func createOrgUrl() string {
+	return lrURL + "/v2/manage/organizations"
+}
+
+func sendInvitationUrl(orgId string) string {
+	url := lrURL + "/v2/manage/organizations/{orgId}/invitations"
+	return strings.Replace(url, "{orgId}", orgId, 1)
+}
+
 func getUsersOfOrgUrl(orgID string) string {
 
 	url := lrURL + "/v2/manage/organizations/{orgId}/orgcontext"

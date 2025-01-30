@@ -6,22 +6,24 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"sync"
 	"time"
 )
 
 const (
-	LrURL        = "https://devapi.lrinternal.com"
-	tokenURL     = "https://demotesting.devhub.lrinternal.com/service/oauth/token"
-	clientID     = ""
-	clientSecret = ""
-	audience     = "https://devapi.lrinternal.com/identity/v2/manage"
-	CustomerID   = "7c9254057e2044c5b3fadf8bf0b3dd31"
-	AppId        = "99207378"
+	LrURL      = "https://devapi.lrinternal.com"
+	tokenURL   = "https://demotesting.devhub.lrinternal.com/service/oauth/token"
+	audience   = "https://devapi.lrinternal.com/identity/v2/manage"
+	CustomerID = "7c9254057e2044c5b3fadf8bf0b3dd31"
+	AppId      = "99207378"
 )
 
 // Token storage
 var (
+	clientID     = os.Getenv("OPENID_CLIENT_ID")
+	clientSecret = os.Getenv("OPENID_CLIENT_SECRET")
+
 	m2mToken    string
 	tokenExpiry int64
 	mu          sync.Mutex

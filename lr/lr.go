@@ -68,10 +68,83 @@ func GetAllUsersOfAnOrganization(orgID string) ([]UserRole, error) {
 	return usersResp.Data, nil
 }
 
-func Test() {
-	orgs, _ := GetUserOrgs("7c9254057e2044c5b3fadf8bf0b3dd31")
+func CreateOrg(tenantOrgID string, newOrgName string) error {
 
-	fmt.Println("Response:", orgs)
+	// create an app : 7c9254057e2044c5b3fadf8bf0b3dd31
+
+	// AppName should be current org name and mark its name as appname
+	payload := strings.NewReader(`{
+		"AppName": "niketest123", 
+		"Domain": "login2website.com; localhost:3000",
+		"CallbackUrl": "login2website.com; localhost",
+		"DevDomain": "login2website.com"
+	}`)
+
+	res, err := Post(createAppUrl(), payload)
+	if err != nil {
+		return err
+	}
+
+	var appData AppResponse
+	if err := json.NewDecoder(bytes.NewReader(res)).Decode(&appData); err != nil {
+		return err
+	}
+
+	// fmt.Printf("AppData: %+v %+v\n", appData, appData.AppId)
+
+	// create a relation between orgid and appid
+	if err := CreateAppidToOrgidMapping(mongoClient, appData.AppId, tenantOrgID); err != nil {
+		return err
+	}
+
+	// create an org for the above passed data
+	orgPayload := strings.NewReader(`{
+		"Name": "test-nike-hyd",
+		"Domains": [
+			{
+				"DomainName": "loginradius.com",
+				"IsVerified": true
+			}
+		],
+		"IsAuthRestrictedToDomain": false
+	}`)
+
+	// this creates in nike-com db but how do we differentiate the hirearcy
+	orgRes, err := Post(createOrgUrl(), orgPayload)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("OrgRes:", string(orgRes))
+	var orgDataResp Organizations
+	if err := json.NewDecoder(bytes.NewReader(orgRes)).Decode(&orgDataResp); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func InviteUser(orgId string, invite SendInvitation) error {
+
+	payload, err := json.Marshal(invite)
+	if err != nil {
+		return err
+	}
+
+	_, err = Post(sendInvitationUrl(orgId), bytes.NewReader(payload))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func Test() {
+	if err := CreateOrg("qwer", "niketest123"); err != nil {
+		fmt.Println("Error:", err)
+	}
+
+	// fmt.Println("Response:", orgs)
 }
 
 func TestLogin() {
