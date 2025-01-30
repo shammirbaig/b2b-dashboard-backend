@@ -3,6 +3,7 @@ module backend
 go 1.23.4
 
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/joho/godotenv v1.5.1
 	github.com/savsgio/atreugo/v11 v11.13.2
 	go.mongodb.org/mongo-driver v1.17.2
@@ -10,7 +11,6 @@ require (
 
 require (
 	github.com/andybalholm/brotli v1.1.0 // indirect
-	github.com/atreugo/cors v1.0.7 // indirect
 	github.com/fasthttp/router v1.5.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/klauspost/compress v1.17.9 // indirect

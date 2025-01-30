@@ -1,6 +1,7 @@
 package lr
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -8,7 +9,7 @@ import (
 	"strings"
 )
 
-func dynamicClient(appid, customerid string, method, url string, payload io.Reader) ([]byte, error) {
+func dynamicClient(ctx context.Context, appid, customerid string, method, url string, payload io.Reader) ([]byte, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest(method, url, payload)
 
@@ -35,18 +36,25 @@ func dynamicClient(appid, customerid string, method, url string, payload io.Read
 	return body, nil
 }
 
-func client(method, url string, payload io.Reader, appId string) ([]byte, error) {
+func client(ctx context.Context, method, url string, payload io.Reader, appId string) ([]byte, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest(method, url, payload)
 
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("X-CustomerId", "7c9254057e2044c5b3fadf8bf0b3dd31")
+	req.Header.Add("X-CustomerId", func() string {
+
+		return "7c9254057e2044c5b3fadf8bf0b3dd31"
+	}())
 	req.Header.Add("X-AppId", func() string {
 		if appId == "" {
+			//if appIdFromCtx, ok := ctx.Value("appId").(string); ok {
+			//	return appIdFromCtx
+			//}
 			return "99207378"
 		}
+
 		return appId
 	}())
 	req.Header.Add("Content-Type", "application/json")
@@ -73,31 +81,31 @@ func client(method, url string, payload io.Reader, appId string) ([]byte, error)
 	return body, nil
 }
 
-func Get(url, appId string) ([]byte, error) {
+func Get(ctx context.Context, url, appId string) ([]byte, error) {
 	method := "GET"
 
 	payload := strings.NewReader(``)
 
-	return client(method, url, payload, appId)
+	return client(ctx, method, url, payload, appId)
 }
 
-func Post(url string, payload io.Reader) ([]byte, error) {
+func Post(ctx context.Context, url string, payload io.Reader) ([]byte, error) {
 
 	method := "POST"
 
-	return client(method, url, payload, "")
+	return client(ctx, method, url, payload, "")
 }
 
-func DynamicPost(appid, customerid string, url string, payload io.Reader) ([]byte, error) {
+func DynamicPost(ctx context.Context, appid, customerid string, url string, payload io.Reader) ([]byte, error) {
 
 	method := "POST"
 
-	return dynamicClient(appid, customerid, method, url, payload)
+	return dynamicClient(ctx, appid, customerid, method, url, payload)
 }
 
-func Put(url string, payload io.Reader) ([]byte, error) {
+func Put(ctx context.Context, url string, payload io.Reader) ([]byte, error) {
 
 	method := "PUT"
 
-	return client(method, url, payload, "")
+	return client(ctx, method, url, payload, "")
 }

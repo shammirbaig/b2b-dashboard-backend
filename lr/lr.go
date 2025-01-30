@@ -2,6 +2,7 @@ package lr
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -10,34 +11,29 @@ import (
 )
 
 // Login returns the orgs that the user is a part of
-func Login(email, password string) (string, []OrganizationResponse, error) {
+func Login(ctx context.Context, email, password string) (*AuthResponse, []OrganizationResponse, error) {
 
-	data, err := Post(loginUrl, strings.NewReader(`{"email":"`+email+`","password":"`+password+`"}`))
+	data, err := Post(ctx, loginUrl, strings.NewReader(`{"email":"`+email+`","password":"`+password+`"}`))
 	if err != nil {
-		return "", nil, errors.New("invalid credentials")
+		return nil, nil, errors.New("invalid credentials")
 	}
 
-	var tokenResp struct {
-		Profile struct {
-			Uid string `json:"Uid"`
-		} `json:"Profile"`
+	var resp AuthResponse
+	if err := json.NewDecoder(bytes.NewReader(data)).Decode(&resp); err != nil {
+		return nil, nil, err
 	}
 
-	if err := json.NewDecoder(bytes.NewReader(data)).Decode(&tokenResp); err != nil {
-		return "", nil, err
-	}
-
-	orgs, err := GetUserOrgs(tokenResp.Profile.Uid)
+	orgs, err := GetUserOrgs(ctx, *resp.Profile.Uid)
 	if err != nil {
-		return "", nil, err
+		return nil, nil, err
 	}
 
 	fmt.Println(orgs)
-	return tokenResp.Profile.Uid, orgs, nil
+	return &resp, orgs, nil
 }
 
-func GetUserOrgs(uid string) ([]OrganizationResponse, error) {
-	data, err := Get(getOrgsOfUserUrl(uid), "")
+func GetUserOrgs(ctx context.Context, uid string) ([]OrganizationResponse, error) {
+	data, err := Get(ctx, getOrgsOfUserUrl(uid), "")
 	if err != nil {
 		return nil, err
 	}
@@ -53,8 +49,8 @@ func GetUserOrgs(uid string) ([]OrganizationResponse, error) {
 	return orgsResp.Data, nil
 }
 
-func GetAllUsersOfAnOrganization(orgID string) ([]UserRole, error) {
-	data, err := Get(getUsersOfOrgUrl(orgID), "")
+func GetAllUsersOfAnOrganization(ctx context.Context, orgID string) ([]UserRole, error) {
+	data, err := Get(ctx, getUsersOfOrgUrl(orgID), "")
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +66,7 @@ func GetAllUsersOfAnOrganization(orgID string) ([]UserRole, error) {
 	return usersResp.Data, nil
 }
 
-func CreateOrg(tenantOrgID string, newOrgName string, oldOrgName string) error {
+func CreateOrg(ctx context.Context, tenantOrgID string, newOrgName string, oldOrgName string) error {
 
 	// create an app : 7c9254057e2044c5b3fadf8bf0b3dd31
 
@@ -84,7 +80,7 @@ func CreateOrg(tenantOrgID string, newOrgName string, oldOrgName string) error {
 
 	payload = strings.Replace(payload, "{oldOrgName}", oldOrgName, 1)
 
-	res, err := Post(createAppUrl(), strings.NewReader(payload))
+	res, err := Post(ctx, createAppUrl(), strings.NewReader(payload))
 	if err != nil {
 		return err
 	}
@@ -105,7 +101,7 @@ func CreateOrg(tenantOrgID string, newOrgName string, oldOrgName string) error {
 	}`)
 
 	// turn on b2b feature
-	_, err = Put(turnB2BApp(appData.OwnerId, strconv.Itoa(appData.AppId)), feature)
+	_, err = Put(ctx, turnB2BApp(appData.OwnerId, strconv.Itoa(appData.AppId)), feature)
 	if err != nil {
 		return err
 	}
@@ -130,7 +126,7 @@ func CreateOrg(tenantOrgID string, newOrgName string, oldOrgName string) error {
 	orgPayload = strings.Replace(orgPayload, "{orgName}", newOrgName, 1)
 
 	// this creates in nike-com db but how do we differentiate the hirearcy
-	orgRes, err := DynamicPost(strconv.Itoa(appData.AppId), appData.OwnerId, createOrgUrl(), strings.NewReader(orgPayload))
+	orgRes, err := DynamicPost(ctx, strconv.Itoa(appData.AppId), appData.OwnerId, createOrgUrl(), strings.NewReader(orgPayload))
 	if err != nil {
 		return err
 	}
@@ -143,14 +139,14 @@ func CreateOrg(tenantOrgID string, newOrgName string, oldOrgName string) error {
 	return nil
 }
 
-func InviteUser(orgId string, invite SendInvitation) error {
+func InviteUser(ctx context.Context, orgId string, invite SendInvitation) error {
 
 	payload, err := json.Marshal(invite)
 	if err != nil {
 		return err
 	}
 
-	_, err = Post(sendInvitationUrl(orgId), bytes.NewReader(payload))
+	_, err = Post(ctx, sendInvitationUrl(orgId), bytes.NewReader(payload))
 	if err != nil {
 		return err
 	}
@@ -158,8 +154,8 @@ func InviteUser(orgId string, invite SendInvitation) error {
 	return nil
 }
 
-func GetAllRolesOfAnOrg(orgId string) ([]RoleResponse, error) {
-	data, err := Get(getAllRolesOfAnOrg(orgId), "")
+func GetAllRolesOfAnOrg(ctx context.Context, orgId string) ([]RoleResponse, error) {
+	data, err := Get(ctx, getAllRolesOfAnOrg(orgId), "")
 	if err != nil {
 		return nil, err
 	}
@@ -175,15 +171,33 @@ func GetAllRolesOfAnOrg(orgId string) ([]RoleResponse, error) {
 	return rolesResp.Data, nil
 }
 
-func GetAllOrganizationsOfTenant(orgId string) ([]AllOrganizationsResponse, error) {
+func GetAllOrganizationsOfTenant(ctx context.Context, orgId string) ([]AllOrganizationsResponse, error) {
 
 	//get AppId from the orgId-appId relation
-	appId, err := GetAppIdFromOrgIdMapping(mongoClient, orgId)
-	if err != nil {
-		return nil, err
+	if orgId != "" {
+		appId, err := GetAppIdFromOrgIdMapping(mongoClient, orgId)
+		if err != nil {
+			return nil, err
+		}
+
+		data, err := Get(ctx, getOrgsOfTenantUrl(), strconv.Itoa(appId))
+		if err != nil {
+			return nil, err
+		}
+
+		var orgsResp struct {
+			Data []AllOrganizationsResponse `json:"Data"`
+		}
+
+		if err := json.NewDecoder(bytes.NewReader(data)).Decode(&orgsResp); err != nil {
+			return nil, err
+		}
+
+		return orgsResp.Data, nil
+
 	}
 
-	data, err := Get(getOrgsOfTenantUrl(), strconv.Itoa(appId))
+	data, err := Get(ctx, getOrgsOfTenantUrl(), "")
 	if err != nil {
 		return nil, err
 	}
@@ -199,8 +213,8 @@ func GetAllOrganizationsOfTenant(orgId string) ([]AllOrganizationsResponse, erro
 	return orgsResp.Data, nil
 }
 
-func GetAllInvitationsOfOrganization(orgID string) ([]InvitationResponse, error) {
-	data, err := Get(getAllInvitationsOfOrganization(orgID), "")
+func GetAllInvitationsOfOrganization(ctx context.Context, orgID string) ([]InvitationResponse, error) {
+	data, err := Get(ctx, getAllInvitationsOfOrganization(orgID), "")
 	if err != nil {
 		return nil, err
 	}
@@ -218,7 +232,8 @@ func GetAllInvitationsOfOrganization(orgID string) ([]InvitationResponse, error)
 }
 
 func GetAllRolesOfUserInOrg(orgID, uid string) ([]RoleResponse, error) {
-	data, err := Get(getAllRolesOfUserInOrg(orgID, uid), "")
+
+	data, err := Get(context.Background(), getAllRolesOfUserInOrg(orgID, uid), "")
 	if err != nil {
 		return nil, err
 	}
@@ -235,7 +250,7 @@ func GetAllRolesOfUserInOrg(orgID, uid string) ([]RoleResponse, error) {
 }
 
 func Test() {
-	if err := CreateOrg("qwer", "niketest123", ""); err != nil {
+	if err := CreateOrg(context.Background(), "qwer", "niketest123", ""); err != nil {
 		fmt.Println("Error:", err)
 	}
 }
@@ -246,22 +261,22 @@ func TestLogin() {
 }
 
 func TestGetAllUsersOfAnOrganization() {
-	users, _ := GetAllUsersOfAnOrganization("org_Z5pkOZ-0eGkkbhQ1")
+	users, _ := GetAllUsersOfAnOrganization(context.Background(), "org_Z5pkOZ-0eGkkbhQ1")
 	fmt.Println("Response:", users)
 }
 
 func TestGetAllRolesOfAnOrg() {
-	roles, _ := GetAllRolesOfAnOrg("org_Z5pkOZ-0eGkkbhQ1")
+	roles, _ := GetAllRolesOfAnOrg(context.Background(), "org_Z5pkOZ-0eGkkbhQ1")
 	fmt.Println("Response:", roles)
 }
 
 func TestGetAllOrganizationsOfTenant() {
-	orgs, _ := GetAllOrganizationsOfTenant("org_Z5pkOZ-0eGkkbhQ1")
+	orgs, _ := GetAllOrganizationsOfTenant(context.Background(), "org_Z5pkOZ-0eGkkbhQ1")
 	fmt.Println("Response:", orgs)
 }
 
 func TestGetAllInvitationsOfOrganization() {
-	invitations, _ := GetAllInvitationsOfOrganization("org_Z5pkOZ-0eGkkbhQ1")
+	invitations, _ := GetAllInvitationsOfOrganization(context.Background(), "org_Z5pkOZ-0eGkkbhQ1")
 	fmt.Println("Response:", invitations)
 }
 

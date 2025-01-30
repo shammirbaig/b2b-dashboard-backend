@@ -3,7 +3,12 @@ package main
 import (
 	"backend/lr"
 	"encoding/json"
+	"fmt"
+	"log"
+	"os"
+	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/joho/godotenv"
 	"github.com/savsgio/atreugo/v11"
 )
@@ -21,6 +26,32 @@ func main() {
 		ctx.Response.Header.Set("Access-Control-Allow-Methods", "*")
 		ctx.Response.Header.Set("Content-Type", "application/json;charset=utf-8")
 
+		if string(ctx.Path()) != "/auth/login" {
+			tokenString := string(ctx.Request.Header.Peek("Authorization"))
+			if tokenString == "" {
+				return ctx.ErrorResponse(fmt.Errorf("missing token"), 401)
+			}
+
+			token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+					return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+				}
+				return []byte(os.Getenv("JWT_SECRET_KEY")), nil
+			})
+
+			if err != nil || !token.Valid {
+				return ctx.ErrorResponse(fmt.Errorf("invalid token"), 401)
+			}
+
+			claims, ok := token.Claims.(jwt.MapClaims)
+			if !ok {
+				return ctx.ErrorResponse(fmt.Errorf("invalid claims"), 401)
+			}
+
+			ctx.SetUserValue("uid", claims["uid"])
+
+		}
+
 		return ctx.Next()
 	})
 
@@ -34,6 +65,8 @@ func main() {
 		return ctx.TextResponse("Hello, World!")
 	})
 	authCtx.POST("/login", login)
+
+	// Authenticated routes
 	authCtx.POST("/org/{id}/create", createOrg)
 	authCtx.POST("/org/{id}/invitations", inviteUser)
 	authCtx.GET("/org/{id}/invitations", getAllInvitationsOfOrganization)
@@ -60,7 +93,7 @@ func login(ctx *atreugo.RequestCtx) error {
 	}
 
 	// Handle the request
-	uid, data, err := lr.Login(permission.Email, permission.Password)
+	res, data, err := lr.Login(ctx, permission.Email, permission.Password)
 	if err != nil {
 		return ctx.ErrorResponse(err, 500)
 	}
@@ -70,9 +103,9 @@ func login(ctx *atreugo.RequestCtx) error {
 		OrganizationsList []lr.OrganizationResponse `json:"organizationsList"`
 		Token             string                    `json:"token"`
 	}{
-		UserId:            uid,
+		UserId:            *res.Profile.IdentityResponse.Identity.Uid,
 		OrganizationsList: data,
-		Token:             "",
+		Token:             createSessionToken(*res.Profile.IdentityResponse.Identity.Uid),
 	}
 
 	return ctx.JSONResponse(resp, 201)
@@ -92,7 +125,7 @@ func createOrg(ctx *atreugo.RequestCtx) error {
 	tenantOrgID := ctx.UserValue("id").(string)
 
 	// Handle the request
-	if err := lr.CreateOrg(tenantOrgID, org.Name, org.OldName); err != nil {
+	if err := lr.CreateOrg(ctx, tenantOrgID, org.Name, org.OldName); err != nil {
 		return ctx.ErrorResponse(err, 500)
 	}
 
@@ -110,7 +143,7 @@ func inviteUser(ctx *atreugo.RequestCtx) error {
 	orgId := ctx.UserValue("id").(string)
 
 	// Handle the request
-	if err := lr.InviteUser(orgId, invite); err != nil {
+	if err := lr.InviteUser(ctx, orgId, invite); err != nil {
 		return ctx.ErrorResponse(err, 500)
 	}
 
@@ -122,7 +155,7 @@ func getAllInvitationsOfOrganization(ctx *atreugo.RequestCtx) error {
 	orgId := ctx.UserValue("id").(string)
 
 	// Handle the request
-	data, err := lr.GetAllInvitationsOfOrganization(orgId)
+	data, err := lr.GetAllInvitationsOfOrganization(ctx, orgId)
 	if err != nil {
 		return ctx.ErrorResponse(err, 500)
 	}
@@ -141,7 +174,7 @@ func getAllUsersOfAnOrganization(ctx *atreugo.RequestCtx) error {
 	orgId := ctx.UserValue("id").(string)
 
 	// Handle the request
-	data, err := lr.GetAllUsersOfAnOrganization(orgId)
+	data, err := lr.GetAllUsersOfAnOrganization(ctx, orgId)
 	if err != nil {
 		return ctx.ErrorResponse(err, 500)
 	}
@@ -160,7 +193,7 @@ func getAllRolesOfAnOrg(ctx *atreugo.RequestCtx) error {
 	orgId := ctx.UserValue("id").(string)
 
 	// Handle the request
-	data, err := lr.GetAllRolesOfAnOrg(orgId)
+	data, err := lr.GetAllRolesOfAnOrg(ctx, orgId)
 	if err != nil {
 		return ctx.ErrorResponse(err, 500)
 	}
@@ -177,7 +210,7 @@ func getAllOrganizationsOfTenant(ctx *atreugo.RequestCtx) error {
 
 	orgId := string(ctx.QueryArgs().Peek("orgId"))
 	// Handle the request
-	data, err := lr.GetAllOrganizationsOfTenant(orgId)
+	data, err := lr.GetAllOrganizationsOfTenant(ctx, orgId)
 	if err != nil {
 		return ctx.ErrorResponse(err, 500)
 	}
@@ -208,4 +241,23 @@ func getAllRolesOfUserInOrg(ctx *atreugo.RequestCtx) error {
 		Data: data,
 	}
 	return ctx.JSONResponse(res, 200)
+}
+
+func createSessionToken(userId string) string {
+	// Define the token claims
+	claims := jwt.MapClaims{
+		"uid": userId,
+		"exp": time.Now().Add(time.Hour * 72).Unix(), // Token expiration time
+	}
+
+	// Create the token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	// Sign the token with a secret key
+	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET_KEY")))
+	if err != nil {
+		log.Fatalf("Error signing token: %v", err)
+	}
+
+	return tokenString
 }

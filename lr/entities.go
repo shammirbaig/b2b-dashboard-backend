@@ -146,7 +146,7 @@ type IDPCertificate struct {
 }
 
 type TimeStamp struct {
-	*time.Time
+	time.Time
 }
 
 type AppResponse struct {
@@ -273,4 +273,172 @@ type LoginResponse struct {
 	organizationsList []OrganizationResponse `json:"organizationsList"`
 	userId            string                 `json:"userId"`
 	sessionToken      string                 `json:"sessionToken"`
+}
+
+// AuthResponse is the response from the login endpoint
+type AuthResponse struct {
+	Profile *IdentityResponseWithSocialWithoutLogins `json:"Profile"`
+	AccessToken
+}
+
+type AccessToken struct {
+	AccessToken  string    `json:"access_token"`
+	RefreshToken string    `json:"refresh_token,omitempty"`
+	Expiry       TimeStamp `json:"expires_in"`
+	*SessionToken
+}
+
+type SessionToken struct {
+	FeatureToken       string    `json:"session_token"`
+	FeatureTokenExpiry TimeStamp `json:"session_expires_in"`
+}
+
+type IdentityResponseWithSocialWithoutLogins struct {
+	Identities []IdentityResponseWithoutLogins `json:"Identities"`
+	IdentityResponse
+}
+
+type IdentityResponse struct {
+	Identity
+}
+
+type IdentityResponseWithoutLogins struct {
+	SocialIdentity
+}
+
+type SocialIdentity struct {
+	FailedLoginAttempt                          int     `bson:"FailedLoginAttempt" json:"FailedLoginAttempt,omitempty"`
+	FailedResetAttempt                          int     `bson:"FailedResetAttempt" json:"FailedResetAttempt,omitempty"`
+	SecurityQuestionFailedResetPasswordAttempts int     `bson:"SecurityQuestionFailedResetPasswordAttempts,omitempty" json:"SecurityQuestionFailedResetPasswordAttempts,omitempty"`
+	DisableLogin                                *bool   `bson:"DisableLogin" json:"DisableLogin,omitempty"`
+	IsActive                                    *bool   `bson:"IsActive,omitempty" json:"IsActive,omitempty"`
+	IsDeleted                                   *bool   `bson:"IsDeleted,omitempty" json:"IsDeleted,omitempty"`
+	EmailVerified                               *bool   `bson:"EmailVerified" json:"EmailVerified,omitempty"`
+	IsLoginLocked                               *bool   `bson:"IsLoginLocked,omitempty" json:"IsLoginLocked,omitempty"`
+	IsSecurePassword                            *bool   `bson:"-" json:"IsSecurePassword,omitempty"`
+	IsCustomUid                                 *bool   `bson:"IsCustomUid" json:"IsCustomUid,omitempty"`
+	IsRequiredFieldsFilledOnce                  *bool   `bson:"IsRequiredFieldsFilledOnce,omitempty" json:"IsRequiredFieldsFilledOnce,omitempty"`
+	PhoneIdVerified                             *bool   `bson:"PhoneIdVerified,omitempty" json:"PhoneIdVerified,omitempty"`
+	IsEmailSubscribed                           *bool   `bson:"IsEmailSubscribed,omitempty" json:"IsEmailSubscribed,omitempty"`
+	NoOfLogins                                  *int    `bson:"NoOfLogins,omitempty" json:"NoOfLogins,omitempty"`
+	AppId                                       *int    `bson:"AppId,omitempty" json:"AppId,omitempty"`
+	LoginLockedType                             *string `bson:"LoginLockedType,omitempty" json:"LoginLockedType,omitempty"`
+	LastPasswordChangeToken                     *string `bson:"LastPasswordChangeToken" json:"LastPasswordChangeToken,omitempty"`
+	RegistrationProvider                        *string `bson:"RegistrationProvider" json:"RegistrationProvider,omitempty"`
+	Password                                    *string `bson:"Password" json:"Password,omitempty"`
+	Uid                                         *string `bson:"Uid" json:"Uid,omitempty"`
+	RegistrationSource                          *string `bson:"RegistrationSource" json:"RegistrationSource,omitempty"`
+	LastLoginLocation                           *string `bson:"LastLoginLocation,omitempty" json:"LastLoginLocation,omitempty"`
+	ExternalUserLoginId                         *string `bson:"ExternalUserLoginId,omitempty" json:"ExternalUserLoginId,omitempty"`
+	UnionId                                     *string `bson:"UnionId" json:"UnionId,omitempty"`
+	UserName                                    *string `bson:"UserName,omitempty" json:"UserName,omitempty"`
+	Identity
+}
+
+type Identity struct {
+	FailedLoginAttempt                          int        `bson:"FailedLoginAttempt" json:"-"`
+	FailedResetAttempt                          int        `bson:"FailedResetAttempt" json:"-"`
+	SecurityQuestionFailedResetPasswordAttempts int        `bson:"SecurityQuestionFailedResetPasswordAttempts,omitempty" json:"-"`
+	TokenSignSecret                             int        `bson:"TokenSignSecret" json:"-"`
+	IsPasswordBreached                          bool       `bson:"-" json:"IsPasswordBreached"`
+	DisableLogin                                *bool      `bson:"DisableLogin" json:"-"`
+	IsActive                                    *bool      `bson:"IsActive,omitempty" json:"IsActive"`
+	IsDeleted                                   *bool      `bson:"IsDeleted,omitempty" json:"IsDeleted"`
+	EmailVerified                               *bool      `bson:"EmailVerified" json:"EmailVerified"`
+	IsLoginLocked                               *bool      `bson:"IsLoginLocked,omitempty" json:"IsLoginLocked"`
+	IsRequiredFieldsFilledOnce                  *bool      `bson:"IsRequiredFieldsFilledOnce,omitempty" json:"IsRequiredFieldsFilledOnce"`
+	FirstLogin                                  *bool      `bson:"-" json:"FirstLogin"`
+	IsProtected                                 *bool      `bson:"IsProtected,omitempty" json:"IsProtected"`
+	Hireable                                    *bool      `bson:"Hireable,omitempty" json:"Hireable"`
+	IsSecurePassword                            *bool      `bson:"-" json:"IsSecurePassword"`
+	IsCustomUid                                 *bool      `bson:"IsCustomUid" json:"IsCustomUid"`
+	PhoneIdVerified                             *bool      `bson:"PhoneIdVerified,omitempty" json:"PhoneIdVerified"`
+	IsEmailSubscribed                           *bool      `bson:"IsEmailSubscribed,omitempty" json:"IsEmailSubscribed"`
+	NoOfLogins                                  *int       `bson:"NoOfLogins,omitempty" json:"NoOfLogins"`
+	AppId                                       *int       `bson:"AppId,omitempty" json:"-"`
+	FollowersCount                              *int       `bson:"FollowersCount,omitempty" json:"FollowersCount"`
+	FriendsCount                                *int       `bson:"FriendsCount,omitempty" json:"FriendsCount"`
+	TotalStatusesCount                          *int       `bson:"TotalStatusesCount,omitempty" json:"TotalStatusesCount"`
+	NumRecommenders                             *int       `bson:"NumRecommenders,omitempty" json:"NumRecommenders"`
+	TotalPrivateRepository                      *int       `bson:"TotalPrivateRepository,omitempty" json:"TotalPrivateRepository"`
+	PublicGists                                 *int       `bson:"PublicGists,omitempty" json:"PublicGists"`
+	PrivateGists                                *int       `bson:"PrivateGists,omitempty" json:"PrivateGists"`
+	PinsCount                                   *int       `bson:"PinsCount,omitempty" json:"PinsCount"`
+	BoardsCount                                 *int       `bson:"BoardsCount,omitempty" json:"BoardsCount"`
+	LikesCount                                  *int       `bson:"LikesCount,omitempty" json:"LikesCount"`
+	SessionLimit                                uint8      `bson:"SessionLimit,omitempty" json:"SessionLimit,omitempty"`
+	ID                                          *string    `bson:"ID" json:"ID"`
+	Password                                    *string    `bson:"Password" json:"Password"`
+	LoginLockedType                             *string    `bson:"LoginLockedType,omitempty" json:"LoginLockedType"`
+	Provider                                    *string    `bson:"Provider" json:"Provider"`
+	LastPasswordChangeToken                     *string    `bson:"LastPasswordChangeToken" json:"LastPasswordChangeToken"`
+	FullName                                    *string    `bson:"FullName" json:"FullName"`
+	FirstName                                   *string    `bson:"FirstName" json:"FirstName"`
+	LastName                                    *string    `bson:"LastName" json:"LastName"`
+	Uid                                         *string    `bson:"Uid" json:"Uid"`
+	RegistrationProvider                        *string    `bson:"RegistrationProvider" json:"RegistrationProvider"`
+	RegistrationSource                          *string    `bson:"RegistrationSource" json:"RegistrationSource"`
+	LastLoginLocation                           *string    `bson:"LastLoginLocation,omitempty" json:"LastLoginLocation"`
+	ExternalUserLoginId                         *string    `bson:"ExternalUserLoginId,omitempty" json:"ExternalUserLoginId"`
+	PhoneId                                     *string    `bson:"PhoneId,omitempty" json:"PhoneId"`
+	UserName                                    *string    `bson:"UserName,omitempty" json:"UserName"`
+	Prefix                                      *string    `bson:"Prefix,omitempty" json:"Prefix"`
+	MiddleName                                  *string    `bson:"MiddleName,omitempty" json:"MiddleName"`
+	Suffix                                      *string    `bson:"Suffix,omitempty" json:"Suffix"`
+	NickName                                    *string    `bson:"NickName" json:"NickName"`
+	ProfileName                                 *string    `bson:"ProfileName,omitempty" json:"ProfileName"`
+	BirthDate                                   *string    `bson:"BirthDate,omitempty" json:"BirthDate"`
+	Gender                                      *string    `bson:"Gender,omitempty" json:"Gender"`
+	Website                                     *string    `bson:"Website,omitempty" json:"Website"`
+	ThumbnailImageUrl                           *string    `bson:"ThumbnailImageUrl,omitempty" json:"ThumbnailImageUrl"`
+	ImageUrl                                    *string    `bson:"ImageUrl,omitempty" json:"ImageUrl"`
+	Favicon                                     *string    `bson:"Favicon,omitempty" json:"Favicon"`
+	ProfileUrl                                  *string    `bson:"ProfileUrl,omitempty" json:"ProfileUrl"`
+	HomeTown                                    *string    `bson:"HomeTown,omitempty" json:"HomeTown"`
+	State                                       *string    `bson:"State,omitempty" json:"State"`
+	City                                        *string    `bson:"City,omitempty" json:"City"`
+	Industry                                    *string    `bson:"Industry,omitempty" json:"Industry"`
+	About                                       *string    `bson:"About,omitempty" json:"About"`
+	TimeZone                                    *string    `bson:"TimeZone,omitempty" json:"TimeZone"`
+	LocalLanguage                               *string    `bson:"LocalLanguage,omitempty" json:"LocalLanguage"`
+	CoverPhoto                                  *string    `bson:"CoverPhoto,omitempty" json:"CoverPhoto"`
+	TagLine                                     *string    `bson:"TagLine,omitempty" json:"TagLine"`
+	Language                                    *string    `bson:"-" json:"Language"`
+	Verified                                    *string    `bson:"Verified,omitempty" json:"Verified"`
+	UpdatedTime                                 *string    `bson:"UpdatedTime,omitempty" json:"UpdatedTime"`
+	IsGeoEnabled                                *string    `bson:"IsGeoEnabled,omitempty" json:"IsGeoEnabled"`
+	Associations                                *string    `bson:"Associations,omitempty" json:"Associations"`
+	Honors                                      *string    `bson:"Honors,omitempty" json:"Honors"`
+	HttpsImageUrl                               *string    `bson:"HttpsImageUrl,omitempty" json:"HttpsImageUrl"`
+	MainAddress                                 *string    `bson:"MainAddress,omitempty" json:"MainAddress"`
+	Created                                     *string    `bson:"Created,omitempty" json:"Created"`
+	LocalCity                                   *string    `bson:"LocalCity,omitempty" json:"LocalCity"`
+	ProfileCity                                 *string    `bson:"-" json:"ProfileCity"`
+	LocalCountry                                *string    `bson:"LocalCountry,omitempty" json:"LocalCountry"`
+	ProfileCountry                              *string    `bson:"-" json:"ProfileCountry"`
+	RelationshipStatus                          *string    `bson:"RelationshipStatus,omitempty" json:"RelationshipStatus"`
+	Quota                                       *string    `bson:"Quota,omitempty" json:"Quota"`
+	Quote                                       *string    `bson:"-" json:"Quote"`
+	Religion                                    *string    `bson:"Religion,omitempty" json:"Religion"`
+	Political                                   *string    `bson:"Political,omitempty" json:"Political"`
+	PublicRepository                            *string    `bson:"PublicRepository,omitempty" json:"PublicRepository"`
+	RepositoryUrl                               *string    `bson:"RepositoryUrl,omitempty" json:"RepositoryUrl"`
+	Age                                         *string    `bson:"Age,omitempty" json:"Age"`
+	ProfessionalHeadline                        *string    `bson:"ProfessionalHeadline,omitempty" json:"ProfessionalHeadline"`
+	LRUserID                                    *string    `bson:"LRUserID,omitempty" json:"LRUserID"`
+	Currency                                    *string    `bson:"Currency,omitempty" json:"Currency"`
+	StarredUrl                                  *string    `bson:"StarredUrl,omitempty" json:"StarredUrl"`
+	GistsUrl                                    *string    `bson:"GistsUrl,omitempty" json:"GistsUrl"`
+	Company                                     *string    `bson:"Company,omitempty" json:"Company"`
+	GravatarImageUrl                            *string    `bson:"GravatarImageUrl,omitempty" json:"GravatarImageUrl"`
+	UnionId                                     *string    `bson:"UnionId" json:"-"`
+	LoginLockedTimeout                          *time.Time `bson:"LoginLockedTimeout,omitempty" json:"-"`
+	LastPasswordChangeDate                      *TimeStamp `bson:"LastPasswordChangeDate,omitempty" json:"LastPasswordChangeDate"`
+	PasswordExpirationDate                      *TimeStamp `bson:"PasswordExpirationDate" json:"PasswordExpirationDate"`
+	CreatedDate                                 *TimeStamp `bson:"CreatedDate" json:"CreatedDate"`
+	ModifiedDate                                *TimeStamp `bson:"ModifiedDate" json:"ModifiedDate"`
+	ProfileModifiedDate                         *TimeStamp `bson:"ProfileModifiedDate,omitempty" json:"ProfileModifiedDate"`
+	LastLoginDate                               *TimeStamp `bson:"LastLoginDate,omitempty" json:"LastLoginDate"`
+	SignupDate                                  *TimeStamp `bson:"-" json:"SignupDate"`
+	// Still pending structs are removeds
 }
