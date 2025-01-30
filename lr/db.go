@@ -52,12 +52,12 @@ func CreateAppidToOrgidMapping(mongoClient *mongo.Database, appid int, orgid str
 
 func GetAppIdFromOrgIdMapping(mongoClient *mongo.Database, orgid string) (int, error) {
 	var result struct {
-		appid int `bson:"appid"`
+		Appid int `bson:"appid"`
 	}
 
 	if err := mongoClient.Collection("Org_App").FindOne(context.Background(), bson.M{"orgid": orgid}).Decode(&result); err != nil {
 		return 0, err
 	}
 
-	return result.appid, nil
+	return result.Appid, nil
 }
