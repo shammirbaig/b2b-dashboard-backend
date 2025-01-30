@@ -16,13 +16,6 @@ func main() {
 		GracefulShutdown: true,
 	})
 
-	// cors := cors.New(cors.Config{
-	// 	AllowedOrigins:   []string{"*"},
-	// 	AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-	// 	AllowedHeaders:   []string{"*"},
-	// 	AllowCredentials: true,
-	// })
-
 	server.UseBefore(func(ctx *atreugo.RequestCtx) error {
 		ctx.Response.Header.Set("Access-Control-Allow-Origin", "*")
 		ctx.Response.Header.Set("Access-Control-Allow-Headers", "*")
@@ -37,9 +30,6 @@ func main() {
 	godotenv.Load(".env")
 
 	lr.NewMongoClient()
-
-	// lr.TestGetAllOrganizationsOfTenant()
-	//lr.TestGetAllInvitationsOfOrganization()
 
 	authCtx.GET("/test", func(ctx *atreugo.RequestCtx) error {
 		return ctx.TextResponse("Hello, World!")
@@ -71,13 +61,22 @@ func login(ctx *atreugo.RequestCtx) error {
 	}
 
 	// Handle the request
-	data, err := lr.Login(permission.Email, permission.Password)
+	uid, data, err := lr.Login(permission.Email, permission.Password)
 	if err != nil {
 		return ctx.ErrorResponse(err, 500)
 	}
 
-	log.Printf("Login successful: %v", data)
-	return ctx.JSONResponse(data, 201)
+	resp := struct {
+		UserId            string                    `json:"userId"`
+		OrganizationsList []lr.OrganizationResponse `json:"organizationsList"`
+		Token             string                    `json:"token"`
+	}{
+		UserId:            uid,
+		OrganizationsList: data,
+		Token:             "",
+	}
+
+	return ctx.JSONResponse(resp, 201)
 }
 
 func createOrg(ctx *atreugo.RequestCtx) error {
