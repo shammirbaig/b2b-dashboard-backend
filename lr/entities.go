@@ -29,6 +29,7 @@ type OrganizationResponse struct {
 	RoleId      string    `json:"RoleId"`
 	OrgId       string    `json:"OrgId"`
 	Uid         string    `json:"Uid"`
+	Name        string    `json:"Name"`
 	CreatedDate time.Time `json:"CreatedDate"`
 }
 

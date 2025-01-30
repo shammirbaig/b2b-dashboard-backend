@@ -50,6 +50,11 @@ func GetUserOrgs(uid string) ([]OrganizationResponse, error) {
 		return nil, err
 	}
 
+	for i, org := range orgsResp.Data {
+		name, _ := GetAnOrganizationDetailsName(org.OrgId)
+		orgsResp.Data[i].Name = name
+	}
+
 	return orgsResp.Data, nil
 }
 
@@ -249,6 +254,20 @@ func GetAllRolesOfUserInOrg(orgID, uid string) ([]RoleResponse, error) {
 	return rolesData, nil
 }
 
+func GetAnOrganizationDetailsName(orgID string) (string, error) {
+	data, err := Get(getOrganizationDetails(orgID), "")
+	if err != nil {
+		return "", err
+	}
+
+	var orgsResp OrganizationResponse
+
+	if err := json.NewDecoder(bytes.NewReader(data)).Decode(&orgsResp); err != nil {
+		return "", err
+	}
+
+	return orgsResp.Name, nil
+}
 func Test() {
 	if err := CreateOrg("qwer", "niketest123", ""); err != nil {
 		fmt.Println("Error:", err)
