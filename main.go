@@ -22,6 +22,13 @@ func main() {
 		ctx.Response.Header.Set("Access-Control-Allow-Methods", "*")
 		ctx.Response.Header.Set("Content-Type", "application/json;charset=utf-8")
 
+		if string(ctx.Path()) != "/auth/login" && string(ctx.Path()) != "/auth/test" {
+			tokenString := string(ctx.Request.Header.Peek("Authorization"))
+			if err := lr.ValidateToken(ctx, tokenString); err != nil {
+				return err
+			}
+		}
+
 		return ctx.Next()
 	})
 
@@ -35,6 +42,7 @@ func main() {
 		return ctx.TextResponse("Hello, World!")
 	})
 	authCtx.POST("/login", login)
+
 	authCtx.POST("/org/{id}/create", createOrg)
 	authCtx.POST("/org/{id}/invitations", inviteUser)
 	authCtx.GET("/org/{id}/invitations", getAllInvitationsOfOrganization)
@@ -73,7 +81,7 @@ func login(ctx *atreugo.RequestCtx) error {
 	}{
 		UserId:            uid,
 		OrganizationsList: data,
-		Token:             "",
+		Token:             lr.CreateSessionToken(uid),
 	}
 
 	return ctx.JSONResponse(resp, http.StatusCreated)

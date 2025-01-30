@@ -182,13 +182,30 @@ func GetAllRolesOfAnOrg(orgId string) ([]RoleResponse, error) {
 
 func GetAllOrganizationsOfTenant(orgId string) ([]AllOrganizationsResponse, error) {
 
-	//get AppId from the orgId-appId relation
-	appId, err := GetAppIdFromOrgIdMapping(mongoClient, orgId)
-	if err != nil {
-		return nil, err
+	if orgId != "" {
+		appId, err := GetAppIdFromOrgIdMapping(mongoClient, orgId)
+		if err != nil {
+			return nil, err
+		}
+
+		data, err := Get(getOrgsOfTenantUrl(), strconv.Itoa(appId))
+		if err != nil {
+			return nil, err
+		}
+
+		var orgsResp struct {
+			Data []AllOrganizationsResponse `json:"Data"`
+		}
+
+		if err := json.NewDecoder(bytes.NewReader(data)).Decode(&orgsResp); err != nil {
+			return nil, err
+		}
+
+		return orgsResp.Data, nil
+
 	}
 
-	data, err := Get(getOrgsOfTenantUrl(), strconv.Itoa(appId))
+	data, err := Get(getOrgsOfTenantUrl(), "")
 	if err != nil {
 		return nil, err
 	}
