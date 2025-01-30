@@ -17,6 +17,7 @@ func dynamicClient(appid, customerid string, method, url string, payload io.Read
 	req.Header.Add("X-AppId", appid)
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Authorization", "Bearer "+GetM2MToken())
+	req.Header.Add("Access-Control-Allow-Origin", "*")
 
 	res, err := client.Do(req)
 	if err != nil {
@@ -43,6 +44,7 @@ func client(method, url string, payload io.Reader) ([]byte, error) {
 	req.Header.Add("X-AppId", "99207378")
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Authorization", "Bearer "+GetM2MToken())
+	req.Header.Add("Access-Control-Allow-Origin", "*")
 
 	res, err := client.Do(req)
 	if err != nil {
