@@ -80,16 +80,26 @@ func CreateOrg(tenantOrgID string, newOrgName string, oldOrgName string) error {
 	// create an app : 7c9254057e2044c5b3fadf8bf0b3dd31
 
 	// AppName should be current org name and mark its name as appname
-	payload := `
-		"AppName": "{oldOrgName}", 
-		"Domain": "login2website.com; localhost:3000",
-		"CallbackUrl": "login2website.com; localhost",
-		"DevDomain": "login2website.com"
-	}`
+	var payload = struct {
+		AppName     string `json:"AppName"`
+		Domain      string `json:"Domain"`
+		CallbackUrl string `json:"CallbackUrl"`
+		DevDomain   string `json:"DevDomain"`
+	}{
+		AppName:     oldOrgName,
+		Domain:      "loginradius.com",
+		CallbackUrl: "https://loginradius.com",
+		DevDomain:   "loginradius.com",
+	}
 
-	payload = strings.Replace(payload, "{oldOrgName}", oldOrgName, 1)
+	v, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
 
-	res, err := Post(createAppUrl(), strings.NewReader(payload))
+	payloadReader := bytes.NewReader(v)
+
+	res, err := Post(createAppUrl(), payloadReader)
 	if err != nil {
 		return err
 	}
@@ -121,27 +131,48 @@ func CreateOrg(tenantOrgID string, newOrgName string, oldOrgName string) error {
 	}
 
 	// create an org for the above passed data
-	orgPayload := `{
-		"Name": "{orgName}",
-		"Domains": [
+	var orgPayload = struct {
+		Name    string `json:"Name"`
+		Domains []struct {
+			DomainName string `json:"DomainName"`
+			IsVerified bool   `json:"IsVerified"`
+		} `json:"Domains"`
+		IsAuthRestrictedToDomain bool `json:"IsAuthRestrictedToDomain"`
+	}{
+		Name: newOrgName,
+		Domains: []struct {
+			DomainName string "json:\"DomainName\""
+			IsVerified bool   "json:\"IsVerified\""
+		}{
 			{
-				"DomainName": "loginradius.com",
-				"IsVerified": true
-			}
-		],
-		"IsAuthRestrictedToDomain": false
-	}`
+				DomainName: "loginradius.com",
+				IsVerified: true,
+			},
+		},
+		IsAuthRestrictedToDomain: false,
+	}
 
-	orgPayload = strings.Replace(orgPayload, "{orgName}", newOrgName, 1)
+	// orgPayload := `{
+	// 	"Name": "{orgName}",
+	// 	"Domains": [
+	// 		{
+	// 			"DomainName": "loginradius.com",
+	// 			"IsVerified": true
+	// 		}
+	// 	],
+	// 	"IsAuthRestrictedToDomain": false
+	// }`
 
-	// this creates in nike-com db but how do we differentiate the hirearcy
-	orgRes, err := DynamicPost(strconv.Itoa(appData.AppId), appData.OwnerId, createOrgUrl(), strings.NewReader(orgPayload))
+	v2, err := json.Marshal(orgPayload)
 	if err != nil {
 		return err
 	}
 
-	var orgDataResp Organizations
-	if err := json.NewDecoder(bytes.NewReader(orgRes)).Decode(&orgDataResp); err != nil {
+	orgPayloadReader := bytes.NewReader(v2)
+
+	// this creates in nike-com db but how do we differentiate the hirearcy
+	_, err = DynamicPost(strconv.Itoa(appData.AppId), appData.OwnerId, createOrgUrl(), orgPayloadReader)
+	if err != nil {
 		return err
 	}
 
