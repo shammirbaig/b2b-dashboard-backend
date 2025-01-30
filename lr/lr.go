@@ -177,6 +177,21 @@ func GetAllRolesOfAnOrg(orgId string) ([]RoleResponse, error) {
 		return nil, err
 	}
 
+	tenantData, err := Get(getAllTenantRoles(), "")
+	if err != nil {
+		return nil, err
+	}
+
+	var tenantRolesResp struct {
+		Data []RoleResponse `json:"Data"`
+	}
+
+	if err := json.NewDecoder(bytes.NewReader(tenantData)).Decode(&tenantRolesResp); err != nil {
+		return nil, err
+	}
+
+	rolesResp.Data = append(rolesResp.Data, tenantRolesResp.Data...)
+
 	return rolesResp.Data, nil
 }
 
@@ -214,10 +229,6 @@ func GetAllInvitationsOfOrganization(orgID string) (*InvitationResponse, error) 
 	if err := json.Unmarshal(data, &invitationsResp); err != nil {
 		return nil, err
 	}
-
-	// if err := json.NewDecoder(bytes.NewReader(data)).Decode(&invitationsResp); err != nil {
-	// 	return nil, err
-	// }
 
 	return &invitationsResp, nil
 }

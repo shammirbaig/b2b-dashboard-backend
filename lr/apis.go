@@ -43,6 +43,10 @@ func getAllRolesOfAnOrg(orgId string) string {
 	return strings.Replace(url, "{orgId}", orgId, 1)
 }
 
+func getAllTenantRoles() string {
+	return lrURL + "/v2/manage/roles"
+}
+
 func getOrgsOfTenantUrl() string {
 	return lrURL + "/v2/manage/organizations"
 }
