@@ -1,6 +1,7 @@
 package lr
 
 import (
+	"os"
 	"strings"
 )
 
@@ -76,4 +77,9 @@ func getRoleById(roleId string) string {
 func getOrganizationDetails(orgId string) string {
 	url := lrURL + "/v2/manage/organizations/{orgId}"
 	return strings.Replace(url, "{orgId}", orgId, 1)
+}
+
+func getProfileDetail(uid string) string {
+	url := lrURL + "/identity/v2/manage/account/{uid}?" + apikey + "&" + "apisecret=" + os.Getenv("API_SECRET")
+	return strings.Replace(url, "{uid}", uid, 1)
 }

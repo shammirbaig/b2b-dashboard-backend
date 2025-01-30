@@ -74,6 +74,17 @@ func GetAllUsersOfAnOrganization(orgID string) ([]UserRole, error) {
 		return nil, err
 	}
 
+	for i, user := range usersResp.Data {
+		name, email, userName, err := GetProfileDetail(user.Uid)
+		if err != nil {
+			return nil, err
+		}
+
+		usersResp.Data[i].Name = name
+		usersResp.Data[i].Email = email
+		usersResp.Data[i].Username = userName
+	}
+
 	return usersResp.Data, nil
 }
 
@@ -321,6 +332,28 @@ func GetAnOrganizationDetailsName(orgID string) (string, error) {
 
 	return orgsResp.Name, nil
 }
+
+func GetProfileDetail(uid string) (string, string, string, error) {
+	data, err := Get(getProfileDetail(uid), "")
+	if err != nil {
+		return "", "", "", err
+	}
+
+	var profileResp struct {
+		Uid       string       `json:"Uid"`
+		FirstName string       `json:"FirstName"`
+		LastName  string       `json:"LastName"`
+		Email     []EmailValue `json:"Email"`
+		UserName  string       `json:"UserName"`
+	}
+
+	if err := json.Unmarshal(data, &profileResp); err != nil {
+		return "", "", "", err
+	}
+
+	return profileResp.FirstName + " " + profileResp.LastName, profileResp.Email[0].Value, profileResp.UserName, nil
+}
+
 func Test() {
 	if err := CreateOrg("qwer", "niketest123", ""); err != nil {
 		fmt.Println("Error:", err)

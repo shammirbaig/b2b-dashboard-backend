@@ -3,9 +3,9 @@ package main
 import (
 	"backend/lr"
 	"encoding/json"
+	"github.com/joho/godotenv"
 	"net/http"
 
-	"github.com/joho/godotenv"
 	"github.com/savsgio/atreugo/v11"
 )
 
@@ -15,6 +15,7 @@ func main() {
 		Addr:             serverURL,
 		GracefulShutdown: true,
 	})
+	godotenv.Load(".env")
 
 	server.UseBefore(func(ctx *atreugo.RequestCtx) error {
 		ctx.Response.Header.Set("Access-Control-Allow-Origin", "*")
@@ -26,8 +27,6 @@ func main() {
 	})
 
 	authCtx := server.NewGroupPath("/auth")
-
-	godotenv.Load(".env")
 
 	lr.NewMongoClient()
 

@@ -190,6 +190,9 @@ type UserRole struct {
 	RoleId      string    `json:"RoleId"`
 	OrgId       string    `json:"OrgId"`
 	Uid         string    `json:"Uid"`
+	Name        string    `json:"Name"`
+	Email       string    `json:"Email"`
+	Username    string    `json:"Username"`
 	CreatedDate time.Time `json:"CreatedDate"`
 }
 
@@ -283,4 +286,9 @@ type LoginResponse struct {
 	organizationsList []OrganizationResponse `json:"organizationsList"`
 	userId            string                 `json:"userId"`
 	sessionToken      string                 `json:"sessionToken"`
+}
+
+type EmailValue struct {
+	Type  string `json:"Type"`
+	Value string `json:"Value"`
 }
