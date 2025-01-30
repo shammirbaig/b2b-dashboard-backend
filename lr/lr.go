@@ -203,6 +203,10 @@ func GetAllOrganizationsOfTenant(orgId string) ([]AllOrganizationsResponse, erro
 		return nil, err
 	}
 
+	if appId == 0 {
+		return nil, nil
+	}
+
 	data, err := Get(getOrgsOfTenantUrl(), strconv.Itoa(appId))
 	if err != nil {
 		return nil, err
