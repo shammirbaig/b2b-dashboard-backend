@@ -3,6 +3,7 @@ package main
 import (
 	"backend/lr"
 	"encoding/json"
+	"net/http"
 
 	"github.com/joho/godotenv"
 	"github.com/savsgio/atreugo/v11"
@@ -56,13 +57,13 @@ func login(ctx *atreugo.RequestCtx) error {
 	}{}
 
 	if err := json.Unmarshal(ctx.PostBody(), &permission); err != nil {
-		return ctx.ErrorResponse(err, 400)
+		return ctx.ErrorResponse(err, http.StatusBadRequest)
 	}
 
 	// Handle the request
 	uid, data, err := lr.Login(permission.Email, permission.Password)
 	if err != nil {
-		return ctx.ErrorResponse(err, 500)
+		return ctx.ErrorResponse(err, http.StatusForbidden)
 	}
 
 	resp := struct {
@@ -75,7 +76,7 @@ func login(ctx *atreugo.RequestCtx) error {
 		Token:             "",
 	}
 
-	return ctx.JSONResponse(resp, 201)
+	return ctx.JSONResponse(resp, http.StatusCreated)
 }
 
 func createOrg(ctx *atreugo.RequestCtx) error {
@@ -86,14 +87,14 @@ func createOrg(ctx *atreugo.RequestCtx) error {
 		OldName string `json:"oldname"`
 	}{}
 	if err := json.Unmarshal(ctx.PostBody(), &org); err != nil {
-		return ctx.ErrorResponse(err, 400)
+		return ctx.ErrorResponse(err, http.StatusBadRequest)
 	}
 
 	tenantOrgID := ctx.UserValue("id").(string)
 
 	// Handle the request
 	if err := lr.CreateOrg(tenantOrgID, org.Name, org.OldName); err != nil {
-		return ctx.ErrorResponse(err, 500)
+		return ctx.ErrorResponse(err, http.StatusForbidden)
 	}
 
 	return ctx.JSONResponse(nil, 201)
@@ -104,17 +105,17 @@ func inviteUser(ctx *atreugo.RequestCtx) error {
 	// Get the request body
 	var invite lr.SendInvitation
 	if err := json.Unmarshal(ctx.PostBody(), &invite); err != nil {
-		return ctx.ErrorResponse(err, 400)
+		return ctx.ErrorResponse(err, http.StatusBadRequest)
 	}
 
 	orgId := ctx.UserValue("id").(string)
 
 	// Handle the request
 	if err := lr.InviteUser(orgId, invite); err != nil {
-		return ctx.ErrorResponse(err, 500)
+		return ctx.ErrorResponse(err, http.StatusForbidden)
 	}
 
-	return ctx.JSONResponse(nil, 201)
+	return ctx.JSONResponse(nil, http.StatusCreated)
 }
 
 func getAllInvitationsOfOrganization(ctx *atreugo.RequestCtx) error {
@@ -124,7 +125,7 @@ func getAllInvitationsOfOrganization(ctx *atreugo.RequestCtx) error {
 	// Handle the request
 	data, err := lr.GetAllInvitationsOfOrganization(orgId)
 	if err != nil {
-		return ctx.ErrorResponse(err, 500)
+		return ctx.ErrorResponse(err, http.StatusForbidden)
 	}
 
 	res := struct {
@@ -133,7 +134,7 @@ func getAllInvitationsOfOrganization(ctx *atreugo.RequestCtx) error {
 		Data: data,
 	}
 
-	return ctx.JSONResponse(res, 200)
+	return ctx.JSONResponse(res, http.StatusOK)
 }
 
 func getAllUsersOfAnOrganization(ctx *atreugo.RequestCtx) error {
@@ -143,7 +144,7 @@ func getAllUsersOfAnOrganization(ctx *atreugo.RequestCtx) error {
 	// Handle the request
 	data, err := lr.GetAllUsersOfAnOrganization(orgId)
 	if err != nil {
-		return ctx.ErrorResponse(err, 500)
+		return ctx.ErrorResponse(err, http.StatusForbidden)
 	}
 
 	res := struct {
@@ -152,7 +153,7 @@ func getAllUsersOfAnOrganization(ctx *atreugo.RequestCtx) error {
 		Data: data,
 	}
 
-	return ctx.JSONResponse(res, 200)
+	return ctx.JSONResponse(res, http.StatusOK)
 }
 
 func getAllRolesOfAnOrg(ctx *atreugo.RequestCtx) error {
@@ -162,7 +163,7 @@ func getAllRolesOfAnOrg(ctx *atreugo.RequestCtx) error {
 	// Handle the request
 	data, err := lr.GetAllRolesOfAnOrg(orgId)
 	if err != nil {
-		return ctx.ErrorResponse(err, 500)
+		return ctx.ErrorResponse(err, http.StatusForbidden)
 	}
 
 	res := struct {
@@ -170,7 +171,7 @@ func getAllRolesOfAnOrg(ctx *atreugo.RequestCtx) error {
 	}{
 		Data: data,
 	}
-	return ctx.JSONResponse(res, 200)
+	return ctx.JSONResponse(res, http.StatusOK)
 }
 
 func getAllOrganizationsOfTenant(ctx *atreugo.RequestCtx) error {
@@ -179,7 +180,7 @@ func getAllOrganizationsOfTenant(ctx *atreugo.RequestCtx) error {
 	// Handle the request
 	data, err := lr.GetAllOrganizationsOfTenant(orgId)
 	if err != nil {
-		return ctx.ErrorResponse(err, 500)
+		return ctx.ErrorResponse(err, http.StatusForbidden)
 	}
 
 	res := struct {
@@ -188,7 +189,7 @@ func getAllOrganizationsOfTenant(ctx *atreugo.RequestCtx) error {
 		Data: data,
 	}
 
-	return ctx.JSONResponse(res, 200)
+	return ctx.JSONResponse(res, http.StatusOK)
 }
 
 func getAllRolesOfUserInOrg(ctx *atreugo.RequestCtx) error {
@@ -199,7 +200,7 @@ func getAllRolesOfUserInOrg(ctx *atreugo.RequestCtx) error {
 	// Handle the request
 	data, err := lr.GetAllRolesOfUserInOrg(orgId, userId)
 	if err != nil {
-		return ctx.ErrorResponse(err, 500)
+		return ctx.ErrorResponse(err, http.StatusForbidden)
 	}
 
 	res := struct {
@@ -207,5 +208,5 @@ func getAllRolesOfUserInOrg(ctx *atreugo.RequestCtx) error {
 	}{
 		Data: data,
 	}
-	return ctx.JSONResponse(res, 200)
+	return ctx.JSONResponse(res, http.StatusOK)
 }
