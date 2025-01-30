@@ -35,6 +35,7 @@ func main() {
 	authCtx.GET("/org/{id}/users", getAllUsersOfAnOrganization)
 	authCtx.GET("/org/{id}/roles", getAllRolesOfAnOrg)
 	authCtx.GET("/orgs", getAllOrganizationsOfTenant)
+	authCtx.GET("/org/{orgId}/user/{userId}/roles", getAllRolesOfUserInOrg)
 
 	if err := server.ListenAndServe(); err != nil {
 		panic(err)
@@ -171,5 +172,24 @@ func getAllOrganizationsOfTenant(ctx *atreugo.RequestCtx) error {
 		Data: data,
 	}
 
+	return ctx.JSONResponse(res, 200)
+}
+
+func getAllRolesOfUserInOrg(ctx *atreugo.RequestCtx) error {
+
+	orgId := ctx.UserValue("orgId").(string)
+	userId := ctx.UserValue("userId").(string)
+
+	// Handle the request
+	data, err := lr.GetAllRolesOfUserInOrg(orgId, userId)
+	if err != nil {
+		return ctx.ErrorResponse(err, 500)
+	}
+
+	res := struct {
+		Data []lr.RoleResponse `json:"Data"`
+	}{
+		Data: data,
+	}
 	return ctx.JSONResponse(res, 200)
 }
