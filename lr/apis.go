@@ -19,6 +19,10 @@ func getOrgsOfUserUrl(uid string) string {
 	return strings.Replace(url, "{uid}", uid, 1)
 }
 
+func getAppUrl(appId string) string {
+	return lrURL + "/v2/manage/app"
+}
+
 func createAppUrl() string {
 	return lrURL + "/v2/manage/app"
 }
