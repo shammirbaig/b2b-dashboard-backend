@@ -22,8 +22,11 @@ func main() {
 
 	lr.NewMongoClient()
 
-	lr.TestGetAllOrganizationsOfTenant()
+	// lr.TestGetAllOrganizationsOfTenant()
 
+	authCtx.GET("/test", func(ctx *atreugo.RequestCtx) error {
+		return ctx.TextResponse("Hello, World!")
+	})
 	authCtx.POST("/login", login)
 	authCtx.POST("/org/{id}/create", createOrg)
 	authCtx.POST("/org/{id}/invite", inviteUser)
