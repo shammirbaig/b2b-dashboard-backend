@@ -14,7 +14,22 @@ func main() {
 		Addr:             serverURL,
 		GracefulShutdown: true,
 	})
-	server.UseBefore()
+
+	// cors := cors.New(cors.Config{
+	// 	AllowedOrigins:   []string{"*"},
+	// 	AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+	// 	AllowedHeaders:   []string{"*"},
+	// 	AllowCredentials: true,
+	// })
+
+	server.UseBefore(func(ctx *atreugo.RequestCtx) error {
+		ctx.Response.Header.Set("Access-Control-Allow-Origin", "*")
+		ctx.Response.Header.Set("Access-Control-Allow-Headers", "*")
+		ctx.Response.Header.Set("Access-Control-Allow-Methods", "*")
+		ctx.Response.Header.Set("Content-Type", "application/json;charset=utf-8")
+
+		return ctx.Next()
+	})
 
 	authCtx := server.NewGroupPath("/auth")
 
