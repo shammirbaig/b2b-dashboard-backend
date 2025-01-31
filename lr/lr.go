@@ -77,7 +77,7 @@ func GetAllUsersOfAnOrganization(orgID string) ([]UserRole, error) {
 	for i, user := range usersResp.Data {
 		name, email, userName, err := GetProfileDetail(user.Uid)
 		if err != nil {
-			return nil, err
+			continue
 		}
 
 		usersResp.Data[i].Name = name
