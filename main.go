@@ -3,8 +3,9 @@ package main
 import (
 	"backend/lr"
 	"encoding/json"
-	"github.com/joho/godotenv"
 	"net/http"
+
+	"github.com/joho/godotenv"
 
 	"github.com/savsgio/atreugo/v11"
 )
@@ -82,6 +83,7 @@ func createOrg(ctx *atreugo.RequestCtx) error {
 
 	// Get the request body
 	var org = struct {
+		Uid     string `json:"uid"`
 		Name    string `json:"name"`
 		OldName string `json:"oldname"`
 	}{}
@@ -92,7 +94,7 @@ func createOrg(ctx *atreugo.RequestCtx) error {
 	tenantOrgID := ctx.UserValue("id").(string)
 
 	// Handle the request
-	if err := lr.CreateOrg(tenantOrgID, org.Name, org.OldName); err != nil {
+	if err := lr.CreateOrg(org.Uid, tenantOrgID, org.Name, org.OldName); err != nil {
 		return ctx.ErrorResponse(err, http.StatusForbidden)
 	}
 
